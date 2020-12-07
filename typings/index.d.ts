@@ -1,0 +1,3 @@
+interface PaperWing {
+  draw()
+}

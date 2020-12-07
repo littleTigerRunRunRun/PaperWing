@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PaperWing纸翼</title>
+  <!--伐得初春竹，抄作三冬雪-->
+  <!---->
+  <script src="./main.js"></script>
+  <style>
+    html,body{
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+    #paperWingTargetCanvas{
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="paperWingTargetCanvas" />
+</body>
+<script>
+  var main = new PaperWing(document.getElementById('paperWingTargetCanvas'))
+  main.draw()
+</script>
+</html>
