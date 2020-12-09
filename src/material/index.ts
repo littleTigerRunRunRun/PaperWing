@@ -1,0 +1,1 @@
+export { PureColorMaterial } from './PureColorMaterial'
