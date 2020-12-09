@@ -21,7 +21,8 @@
   <canvas id="paperWingTargetCanvas" />
 </body>
 <script>
-  var main = new PaperWing(document.getElementById('paperWingTargetCanvas'))
-  main.draw()
+  setPaperWingEntry({
+    canvas: document.getElementById('paperWingTargetCanvas')
+  })
 </script>
 </html>

@@ -11,7 +11,7 @@ const HTTPS = false
 module.exports = {
   mode: 'development',
 
-  entry: './src/index.ts',
+  entry: './src/main.ts',
 
   output: {
     filename: 'main.js',
@@ -44,7 +44,10 @@ module.exports = {
     hot: true,
     host: HOST,
     port: PORT,
-    https: HTTPS
+    https: HTTPS,
+    compress: true,
+    noInfo: false,
+    clientLogLevel: 'none'
   },
 
   module: {
