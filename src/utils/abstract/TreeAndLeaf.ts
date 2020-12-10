@@ -11,6 +11,7 @@ declare interface ChildNameGather {
 // 可以添加子节点的对象的抽象
 export class Treelike {
   public children:Array<Leaflike> = []
+  
   // 产生子节点index用的累加器对象
   protected childrenIndexAccumulator:Accumulator = new Accumulator()
   // 存储子节点对应的index的几何，index指向子节点对象

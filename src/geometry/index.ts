@@ -1,4 +1,4 @@
-import { RectGeometry, RectGeometryConfig } from './RectGeometry'
+import { RectGeometry, RectGeometryShapeConfig } from './RectGeometry'
 
 export const Geometrys = {
   rect: RectGeometry
@@ -6,4 +6,4 @@ export const Geometrys = {
 
 export type GeometryType = RectGeometry
 
-export type GeometryConfig = { type: 'rect', config: RectGeometryConfig }
+export type GeometryConfig = { type: 'rect', config: RectGeometryShapeConfig }

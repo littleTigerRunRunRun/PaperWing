@@ -14,6 +14,8 @@ export class Shape extends Leaflike {
   }
 
   private initGeometry(geometry:GeometryConfig) {
-    this.geometry = new Geometrys[geometry.type](geometry.config) 
+    this.geometry = new Geometrys[geometry.type]({
+      config: geometry.config
+    }) 
   }
 }

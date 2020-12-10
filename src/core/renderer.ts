@@ -3,7 +3,8 @@ declare interface RendererConfig {
 } 
 
 export class Renderer {
-  canvas: HTMLCanvasElement
+  public canvas: HTMLCanvasElement
+
   constructor({ canvas }:RendererConfig) {
     this.canvas = canvas
   }

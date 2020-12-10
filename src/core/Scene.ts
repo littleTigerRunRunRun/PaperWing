@@ -8,6 +8,7 @@ declare interface SceneInitConifg {
 export class Scene extends Treelike {
   public canvas: HTMLCanvasElement
   public renderer:Renderer
+  
   constructor({ canvas }: SceneInitConifg) {
     super()
     this.canvas = canvas
