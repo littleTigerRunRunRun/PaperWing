@@ -1,10 +1,10 @@
-declare interface Renderer {
-  target: HTMLCanvasElement
-}
+declare interface RendererConfig {
+  canvas: HTMLCanvasElement
+} 
 
-export default class BaseRenderer implements Renderer {
-  target: HTMLCanvasElement
-  constructor(target?: HTMLCanvasElement) {
-    this.target = target
+export class Renderer {
+  canvas: HTMLCanvasElement
+  constructor({ canvas }:RendererConfig) {
+    this.canvas = canvas
   }
 }

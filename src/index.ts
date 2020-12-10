@@ -1,5 +1,3 @@
-import { Scene } from './core/Scene'
+export { Scene } from './core/Scene'
 
-export default {
-  Scene
-}
+export { Shape } from './core/Shape'

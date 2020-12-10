@@ -12,11 +12,11 @@ declare interface ChildNameGather {
 export class Treelike {
   public children:Array<Leaflike> = []
   // 产生子节点index用的累加器对象
-  private childrenIndexAccumulator:Accumulator = new Accumulator()
+  protected childrenIndexAccumulator:Accumulator = new Accumulator()
   // 存储子节点对应的index的几何，index指向子节点对象
-  private childrenIndexs:ChildIndexGather = {}
+  protected childrenIndexs:ChildIndexGather = {}
   // 存储子节点name的集合，name指向它表示的index
-  private childrenNames:ChildNameGather = {}
+  protected childrenNames:ChildNameGather = {}
 
   // 添加一个叶节点为子节点，倘若叶节点有name，这个name也会被存储
   public add(child:Leaflike):number {
@@ -27,6 +27,7 @@ export class Treelike {
     this.children.push(child)
     this.childrenIndexs[index] = child
     if (child.name) this.childrenNames[child.name] = index
+    child.parent = this
     return index
   }
   
