@@ -1,7 +1,7 @@
 import { 
   Scene,
   Shape
-} from '../../src/index'
+} from '@/index'
 
 // 测试程序，测试Tree/Leaf结构API的正确性
 export default function main(canvas: HTMLCanvasElement) {

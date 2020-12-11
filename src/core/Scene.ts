@@ -1,23 +1,27 @@
 import { Leaflike, Treelike } from '../utils/abstract/index'
 import { Renderer } from './Renderer'
-import { Loop, AnimationLoopStartOptions } from './Loop'
+import { RenderLoop, AnimationLoopStartOptions } from './RenderLoop'
 import PWEvent from './Event'
 
 declare interface SceneInitConifg {
   canvas?: HTMLCanvasElement
-  options: AnimationLoopStartOptions
+  options?: AnimationLoopStartOptions
 }
+
+// export declare interface ListenGL {
+//   get():GLContext
+// }
 
 export class Scene extends Treelike {
   public canvas: HTMLCanvasElement
   public renderer:Renderer
-  private loop:Loop
+  private loop:RenderLoop
   
   constructor({ canvas, options = {} }: SceneInitConifg) {
     super()
     this.canvas = canvas
     this.renderer = new Renderer({ canvas })
-    this.loop = new Loop({ canvas, options })
+    this.loop = new RenderLoop({ canvas, options })
   }
 
   public add(child:Leaflike):number {

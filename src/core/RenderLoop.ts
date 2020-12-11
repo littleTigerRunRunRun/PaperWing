@@ -4,7 +4,7 @@ import PWEvent from './Event'
 
 declare interface LoopConfig {
   canvas:HTMLCanvasElement,
-  options:AnimationLoopStartOptions
+  options?:AnimationLoopStartOptions
 }
 
 declare interface AnimationLoopInitializeArguments {
@@ -29,25 +29,14 @@ export declare interface AnimationLoopStartOptions {
   failIfMajorPerformanceCaveat?:boolean
 }
 
-let loop:Loop = null // Loop被设定为一个单例
-
-// export declare interface ListenGL {
-//   get():GLContext
-// }
-
-export function getGL():GLContext {
-  if (!loop) return null
-  return loop.gl
-}
-
 // Loop是整个渲染流程的tick控制器
-export class Loop {
+export class RenderLoop {
   public canvas:HTMLCanvasElement
   public gl:GLContext
 
   private loop:AnimationLoop
   
-  constructor({ canvas, options }:LoopConfig) {
+  constructor({ canvas, options = {} }:LoopConfig) {
     this.canvas = canvas
 
     this.initLoop(options)

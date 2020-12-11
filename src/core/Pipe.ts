@@ -1,6 +1,6 @@
 import { Texture2D, loadImage } from '@luma.gl/webgl'
 import { Dictionary, GLContext, ImageSource } from '@/common'
-import { getGL } from './Loop'
+// import { getGL } from './Loop'
 
 declare interface PipeStage {
 
@@ -21,9 +21,10 @@ export class Pipe {
   private needUpdate: boolean
   private assetsReady: boolean
 
-  get gl():GLContext {
-    return getGL()
-  }
+  private gl:GLContext
+  // get gl():GLContext {
+  //   return getGL()
+  // }
 
   constructor({ stages = [], textures = {}, autoUpdate = false }:PipeConfig) {
     this.stages = stages

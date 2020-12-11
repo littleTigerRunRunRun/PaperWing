@@ -1,6 +1,8 @@
-// import testTreeAndLeaf from '../test/utils/abstract/TreeAndLeaf' // Tree/Leaf系统测试用例
+// import testTreeAndLeaf from '../unit/utils/abstract/TreeAndLeaf' // Tree/Leaf系统测试用例
 // import testRendererAndGeometry from '../test/geometry/RectGeometry'
-import testEvent from '../test/core/Event'
+// import testEvent from '../test/core/Event'
+// import testLoop from '../test/core/RenderLoop'
+import testTreeAndLeaf from './test/test'
 
 declare interface EntryConfig {
   canvas: HTMLCanvasElement
@@ -15,5 +17,5 @@ declare global {
 
 window.setPaperWingEntry = function(config: EntryConfig) {
   const { canvas } = config
-  testEvent()
+  testTreeAndLeaf(canvas)
 }

@@ -1,4 +1,4 @@
-import Event from '../../src/core/Event'
+import Event from '@/core/Event'
 const { 
   check,
   register,

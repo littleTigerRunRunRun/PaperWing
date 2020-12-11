@@ -1,4 +1,4 @@
-import { Dictionary, toArray } from '@/common'
+import { Dictionary } from '@/common'
 
 let list:Dictionary<Array<any>> = {}
 let onceList:Dictionary<Array<any>> = {}
