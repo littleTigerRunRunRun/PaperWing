@@ -1,5 +1,6 @@
 import { Texture2D, loadImage } from '@luma.gl/webgl'
-import { StringDictionary, AnyDictionary, GLContext, ImageSource } from '@/common'
+import { Dictionary, GLContext, ImageSource } from '@/common'
+import { getGL } from './Loop'
 
 declare interface PipeStage {
 
@@ -8,22 +9,24 @@ declare interface PipeStage {
 declare interface PipeConfig {
   gl: GLContext,
   stages: Array<PipeStage>,
-  textures?: StringDictionary,
+  textures?: Dictionary<string>,
   autoUpdate: boolean
 }
 
 export class Pipe {
   public autoUpdate: boolean
-  public pools:AnyDictionary = {}
-
-  private gl: GLContext
+  public textures:Dictionary<Texture2D> = {}
+  
   private stages: Array<PipeStage>
   private needUpdate: boolean
   private assetsReady: boolean
 
-  constructor({ gl, stages = [], textures = {}, autoUpdate = false }:PipeConfig) {
+  get gl():GLContext {
+    return getGL()
+  }
+
+  constructor({ stages = [], textures = {}, autoUpdate = false }:PipeConfig) {
     this.stages = stages
-    this.gl = gl
     
     this.autoUpdate = autoUpdate
     this.needUpdate = autoUpdate
@@ -39,12 +42,12 @@ export class Pipe {
   }
 
   // 根据传入的资源链接对象，生成对应的贴图资源
-  private createTexture(textures:StringDictionary) {
+  private createTexture(textures:Dictionary<string>) {
     const resources:Array<ImageSource> = []
     for (const key in textures) {
-      const promise = loadImage(textures[key])
-      const texture = new Texture2D(this.gl, { data: promise })
-      this.pools[key] = texture
+      const promise:Promise<HTMLImageElement> = loadImage(textures[key])
+      const texture:Texture2D = new Texture2D(this.gl, { data: promise })
+      this.textures[key] = texture
       resources.push({ key, promise })
     }
     
@@ -58,5 +61,12 @@ export class Pipe {
       .then(() => {
         this.assetsReady = true
       })
+  }
+
+  // 渲染运行
+  render() {
+    if (this.needUpdate && this.assetsReady) {
+      if (!this.autoUpdate) this.needUpdate = false
+    }
   }
 }
