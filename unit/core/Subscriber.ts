@@ -1,4 +1,4 @@
-import Event from '@/core/Event'
+import Subscriber from '@/core/Subscriber'
 const { 
   check,
   register,
@@ -8,7 +8,7 @@ const {
   remove,
   broadcast,
   clear
-} = Event
+} = Subscriber
 
 class Human {
   public name:string

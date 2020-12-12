@@ -1,7 +1,7 @@
 import { Leaflike, Treelike } from '../utils/abstract/index'
 import { Renderer } from './Renderer'
 import { RenderLoop, AnimationLoopStartOptions } from './RenderLoop'
-import PWEvent from './Event'
+import PWSubscriber from './Subscriber'
 
 declare interface SceneInitConifg {
   canvas?: HTMLCanvasElement
@@ -32,6 +32,6 @@ export class Scene extends Treelike {
 
   // 外部监听一些内部事件
   public listen(eventName:string, callback:Function) {
-    PWEvent.listen(eventName, callback)
+    PWSubscriber.listen(eventName, callback)
   }
 }
