@@ -2,7 +2,7 @@ import { Dictionary } from '@/common'
 
 let list:Dictionary<Array<any>> = {}
 let onceList:Dictionary<Array<any>> = {}
-// const history:Dictionary<Array<any>> = {}
+let history:Dictionary<Array<any>> = {}
 
 function check() {
   // 调试时查看订阅情况
@@ -12,10 +12,10 @@ function check() {
 }
 
 // 注册一种新类型的事件
-function register(eventName:string) {
+function register(eventName:string, useHistory?:boolean) {
   if (!list[eventName]) list[eventName] = []
   if (!onceList[eventName]) onceList[eventName] = []
-  // if (!history[eventName]) history[eventName] = []
+  if (!history[eventName] && useHistory) history[eventName] = []
 }
 
 function cancel(eventName:string) {
@@ -41,6 +41,12 @@ function listen(eventName:string, callback:Function) {
 
 // 与listen不同，是一次性的事件监听，即用即丢
 function once(eventName:string, callback:Function) {
+  if (history[eventName] && history[eventName].length > 0) {
+    for (const item of history[eventName]) {
+      callback.apply(this, item)
+    }
+    return
+  }
   if (!onceList[eventName]) register(eventName)
   onceList[eventName].push(callback)
 }
@@ -62,12 +68,13 @@ function broadcast(eventName:string, ...argus:Array<any>) {
     onceList[eventName].splice(0, onceList[eventName].length)
   }
 
-  // history[eventName].push(argus)
+  if (history[eventName]) history[eventName].push(argus)
 }
 
 // 相比broadcast会永远覆盖上一条也就是只会有最后一条历史记录
-// function cover
+// function cover(eventName)
 
+// 不建议remove掉once
 function remove(eventName:string, callback:Function) {
   if (!list[eventName]) return
   const li = list[eventName].indexOf(callback)
@@ -87,13 +94,18 @@ function clear() {
     onceList[key].splice(0, onceList[key].length)
     delete onceList[key]
   }
+  for (const key in history) {
+    history[key].splice(0, history[key].length)
+    delete history[key]
+  }
   list = {}
   onceList = {}
+  history = {}
 }
 
 interface PaperWingEvent {
   check()
-  register(eventName:string)
+  register(eventName:string, useHistory?:boolean)
   cancel(eventName:string)
   listen(eventName:string, callback:Function)
   once(eventName:string, callback:Function)

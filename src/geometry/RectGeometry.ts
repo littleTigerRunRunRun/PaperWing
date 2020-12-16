@@ -9,17 +9,11 @@ export interface RectGeometryShapeConfig {
   stroke?: number
 }
 
-interface RectGeometryConfig {
-  config: RectGeometryShapeConfig
-}
-
 // 矩形几何类型
 export class RectGeometry extends BaseGeometry {
   public config:RectGeometryShapeConfig
 
-  constructor({
-    config
-  }: RectGeometryConfig) {
+  constructor(config:RectGeometryShapeConfig) {
     super(config)
   }
 

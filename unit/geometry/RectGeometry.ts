@@ -15,6 +15,15 @@ export default function main(canvas: HTMLCanvasElement) {
         height: 100,
         stroke: 4
       }
+    },
+    material: {
+      type: 'pure',
+      config: {
+        r: 1,
+        g: 0.3,
+        b: 0.2,
+        a: 1
+      }
     }
   })
 

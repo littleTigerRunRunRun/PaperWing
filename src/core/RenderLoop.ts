@@ -78,10 +78,12 @@ export class RenderLoop {
   private initLoop(options:AnimationLoopStartOptions) {
     // 注册事件
     PWSubscriber.register('loopRender')
+    PWSubscriber.register('getGl', true)  
 
     this.loop = new AnimationLoop({
       onInitialize: ({ gl }:AnimationLoopInitializeArguments) => {
         this.gl = gl
+        PWSubscriber.broadcast('getGl', gl)        
 
         return {}
       },
