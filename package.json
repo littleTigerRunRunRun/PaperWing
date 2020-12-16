@@ -16,7 +16,8 @@
   "dependencies": {
     "@luma.gl/engine": "^8.3.2",
     "@luma.gl/webgl": "^8.3.2",
-    "lodash": "^4.17.20"
+    "lodash": "^4.17.20",
+    "math.gl": "^3.3.2"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.165",

@@ -91,7 +91,7 @@ function clear() {
   onceList = {}
 }
 
-declare interface PaperWingEvent {
+interface PaperWingEvent {
   check()
   register(eventName:string)
   cancel(eventName:string)

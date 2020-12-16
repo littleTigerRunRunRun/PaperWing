@@ -1,37 +1,46 @@
 import { Leaflike, Treelike } from '../utils/abstract/index'
+import { mixin } from '../utils/mixin'
 import { Renderer } from './Renderer'
-import { RenderLoop, AnimationLoopStartOptions } from './RenderLoop'
+import { RenderLoop, AnimationLoopStartOptions, RenderLoopCarrier } from './RenderLoop'
 import PWSubscriber from './Subscriber'
 
-declare interface SceneInitConifg {
+interface SceneInitConifg {
   canvas?: HTMLCanvasElement
   options?: AnimationLoopStartOptions
 }
 
-// export declare interface ListenGL {
+// export interface ListenGL {
 //   get():GLContext
 // }
 
-export class Scene extends Treelike {
+interface SceneChild extends Leaflike {
+  render()
+}
+
+// 将RenderLoopCarrier这个扩展混合进Treelike
+class SceneTreelike extends Treelike {}
+interface SceneTreelike extends RenderLoopCarrier {}
+mixin(SceneTreelike, [RenderLoopCarrier])
+
+export class Scene extends SceneTreelike {
   public canvas: HTMLCanvasElement
   public renderer:Renderer
-  private loop:RenderLoop
+  public children:Array<SceneChild> = []
   
   constructor({ canvas, options = {} }: SceneInitConifg) {
     super()
     this.canvas = canvas
-    this.renderer = new Renderer({ canvas })
     this.loop = new RenderLoop({ canvas, options })
+    this.renderer = new Renderer({ scene: this })
   }
 
-  public add(child:Leaflike):number {
+  public add(child:SceneChild):number {
     const index = super.add(child)
 
     return index
   }
 
-  // 外部监听一些内部事件
-  public listen(eventName:string, callback:Function) {
-    PWSubscriber.listen(eventName, callback)
+  public destroy() {
+    PWSubscriber.clear()
   }
 }

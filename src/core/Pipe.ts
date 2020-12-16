@@ -2,11 +2,11 @@ import { Texture2D, loadImage } from '@luma.gl/webgl'
 import { Dictionary, GLContext, ImageSource } from '@/common'
 // import { getGL } from './Loop'
 
-declare interface PipeStage {
+interface PipeStage {
 
 }
 
-declare interface PipeConfig {
+interface PipeConfig {
   gl: GLContext,
   stages: Array<PipeStage>,
   textures?: Dictionary<string>,

@@ -1,2 +1,2 @@
-export declare interface PaperWingGeometryStyle {
+export interface PaperWingGeometryStyle {
 }

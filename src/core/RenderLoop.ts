@@ -2,27 +2,27 @@ import { AnimationLoop } from '@luma.gl/engine'
 import { Dictionary, GLContext } from '@/common'
 import PWSubscriber from './Subscriber'
 
-declare interface LoopConfig {
+interface LoopConfig {
   canvas:HTMLCanvasElement,
   options?:AnimationLoopStartOptions
 }
 
-declare interface AnimationLoopInitializeArguments {
+interface AnimationLoopInitializeArguments {
   gl:GLContext
 }
 
-declare interface AnimationLoopRenderArguments {
+interface AnimationLoopRenderArguments {
   gl:GLContext,
   time:number
 }
 
-declare interface FrameCompute {
+interface FrameCompute {
   callback:Function,
   params?:Dictionary<any>,
   before?:boolean
 }
 
-export declare interface AnimationLoopStartOptions {
+export interface AnimationLoopStartOptions {
   canvas?:HTMLCanvasElement
   webgl2?:boolean
   webgl1?:boolean
@@ -33,6 +33,32 @@ export declare interface AnimationLoopStartOptions {
   premultipliedAlpha?:boolean
   preserveDrawingBuffer?:boolean
   failIfMajorPerformanceCaveat?:boolean
+}
+
+export class RenderLoopCarrier {
+  protected loop:RenderLoop
+
+  public tick(callback:Function) {
+    PWSubscriber.listen('loopRender', callback)
+  }
+
+  public removeTick(callback:Function) {
+    PWSubscriber.remove('loopRender', callback)
+  }
+
+  public addFrameComp(compName:string, frameCompute:FrameCompute) {
+    this.loop.addFrameCompute(compName, frameCompute)
+  }
+
+  // 外部监听一些内部事件
+  public bind(eventName:string, callback:Function) {
+    PWSubscriber.listen(eventName, callback)
+  }
+
+  // 取消一个监听
+  public unbind(eventName:string, callback:Function) {
+    PWSubscriber.remove(eventName, callback)
+  }
 }
 
 // Loop是整个渲染流程的tick控制器

@@ -1,10 +1,10 @@
 import { Accumulator } from '../index'
 
-declare interface ChildIndexGather {
+interface ChildIndexGather {
   [key:number]: Leaflike
 }
 
-declare interface ChildNameGather {
+interface ChildNameGather {
   [key:string]: number
 }
 
@@ -73,11 +73,19 @@ export class Treelike {
   }
 }
 
+interface LeafConfig {
+  name?: string
+}
+
 // 可以被添加为子节点的对象的抽象
 export class Leaflike {
   // name在PaperWing中是给用户用的
   public name: string = ''
   public parent: Treelike
+
+  constructor({ name = '' }:LeafConfig) {
+    this.name = name
+  }
 }
 
 // MultiParentLeafObject: 允许被多个父级元素共享的子元素
