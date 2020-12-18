@@ -1,3 +1,7 @@
+export { constantValue } from './shader/constant'
+export { mixin } from './mixin'
+export { Treelike, Leaflike } from './abstract/TreeAndLeaf'
+
 // 累加器
 export class Accumulator {
   private index:number = 0

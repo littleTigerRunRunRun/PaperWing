@@ -1,8 +1,8 @@
-import { Leaflike, Treelike } from '../utils/abstract/index'
+import { Leaflike, Treelike } from '../utils'
 import { mixin } from '../utils/mixin'
 import { Renderer } from './Renderer'
 import { RenderLoop, AnimationLoopStartOptions, RenderLoopCarrier } from './RenderLoop'
-import PWSubscriber from './Subscriber'
+import Subscriber from './Subscriber'
 
 interface SceneInitConifg {
   canvas?: HTMLCanvasElement
@@ -26,21 +26,28 @@ export class Scene extends SceneTreelike {
   public canvas: HTMLCanvasElement
   public renderer:Renderer
   public children:Array<SceneChild> = []
+  public get is2() { return this.loop && this.loop.version === 2 }
+  protected subscriber:Subscriber
   
   constructor({ canvas, options = {} }: SceneInitConifg) {
     super()
+    
     this.canvas = canvas
-    this.loop = new RenderLoop({ canvas, options })
+    this.subscriber = new Subscriber()
+
+    this.loop = new RenderLoop({ canvas, subscriber: this.subscriber, options })
+
     this.renderer = new Renderer({ scene: this })
   }
 
   public add(child:SceneChild):number {
     const index = super.add(child)
+    child.setSubscriber(this.subscriber)
 
     return index
   }
 
   public destroy() {
-    PWSubscriber.clear()
+    this.subscriber.clear()
   }
 }

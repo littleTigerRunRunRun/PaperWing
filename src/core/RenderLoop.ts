@@ -1,9 +1,10 @@
 import { AnimationLoop } from '@luma.gl/engine'
 import { Dictionary, GLContext } from '@/common'
-import PWSubscriber from './Subscriber'
+import Subscriber from './Subscriber'
 
 interface LoopConfig {
   canvas:HTMLCanvasElement,
+  subscriber:Subscriber
   options?:AnimationLoopStartOptions
 }
 
@@ -37,13 +38,14 @@ export interface AnimationLoopStartOptions {
 
 export class RenderLoopCarrier {
   protected loop:RenderLoop
+  protected subscriber:Subscriber
 
   public tick(callback:Function) {
-    PWSubscriber.listen('loopRender', callback)
+    this.subscriber.listen('loopRender', callback)
   }
 
   public removeTick(callback:Function) {
-    PWSubscriber.remove('loopRender', callback)
+    this.subscriber.remove('loopRender', callback)
   }
 
   public addFrameComp(compName:string, frameCompute:FrameCompute) {
@@ -52,12 +54,12 @@ export class RenderLoopCarrier {
 
   // 外部监听一些内部事件
   public bind(eventName:string, callback:Function) {
-    PWSubscriber.listen(eventName, callback)
+    this.subscriber.listen(eventName, callback)
   }
 
   // 取消一个监听
   public unbind(eventName:string, callback:Function) {
-    PWSubscriber.remove(eventName, callback)
+    this.subscriber.remove(eventName, callback)
   }
 }
 
@@ -65,25 +67,30 @@ export class RenderLoopCarrier {
 export class RenderLoop {
   public canvas:HTMLCanvasElement
   public gl:GLContext
+  public get version() {
+    return (this.gl as any)._version
+  }
 
   private loop:AnimationLoop
   private frameComputes:Dictionary<FrameCompute> = {}
+  private subscriber:Subscriber
   
-  constructor({ canvas, options = {} }:LoopConfig) {
+  constructor({ canvas, subscriber, options = {} }:LoopConfig) {
     this.canvas = canvas
+    this.subscriber = subscriber
 
     this.initLoop(options)
   }
 
   private initLoop(options:AnimationLoopStartOptions) {
     // 注册事件
-    PWSubscriber.register('loopRender')
-    PWSubscriber.register('getGl', true)  
+    this.subscriber.register('loopRender')
+    this.subscriber.register('getGl', true)  
 
     this.loop = new AnimationLoop({
       onInitialize: ({ gl }:AnimationLoopInitializeArguments) => {
         this.gl = gl
-        PWSubscriber.broadcast('getGl', gl)        
+        this.subscriber.broadcast('getGl', gl)        
 
         return {}
       },
@@ -94,7 +101,7 @@ export class RenderLoop {
           if (before) callback.apply(this, params)
         }
 
-        PWSubscriber.broadcast('loopRender', { time })
+        this.subscriber.broadcast('loopRender', { time })
 
         // 后帧计算的响应
         for (const key in this.frameComputes) {

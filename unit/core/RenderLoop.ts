@@ -3,7 +3,8 @@ import { RenderLoop } from '../../src/core/RenderLoop'
 
 // 测试程序，测试Event API的正确性
 export default function main(canvas: HTMLCanvasElement) {
-  const loop = new RenderLoop({ canvas })
+  const subscriber = new Subscriber()
+  const loop = new RenderLoop({ canvas, subscriber })
 
   // 由于绘制部分仍未完成，先使用一个其他的画布来测试Loop
   const canvas2 = document.createElement('canvas')
@@ -23,7 +24,7 @@ export default function main(canvas: HTMLCanvasElement) {
 
   let count = 0
 
-  Subscriber.listen('loopRender', ({ time }) => {
+  subscriber.listen('loopRender', ({ time }) => {
     ctx.beginPath()
     ctx.rect(0, 0, width, height)
     ctx.closePath()

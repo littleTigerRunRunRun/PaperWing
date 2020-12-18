@@ -14,4 +14,8 @@ export class PureColorMaterial {
   constructor({ r, g, b, a }: PureColorMaterialConfig) {
     console.log(r, g, b, a)
   }
+  
+  public destroy() {
+    
+  }
 }

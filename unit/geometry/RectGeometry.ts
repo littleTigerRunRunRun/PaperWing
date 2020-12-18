@@ -24,9 +24,12 @@ export default function main(canvas: HTMLCanvasElement) {
         b: 0.2,
         a: 1
       }
-    }
+    },
+
   })
 
+  console.log(scene)
   scene.add(rect1)
-  console.log(rect1)
+  // console.log(rect1)
+  
 }

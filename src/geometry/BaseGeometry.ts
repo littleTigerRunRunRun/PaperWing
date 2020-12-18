@@ -119,4 +119,8 @@ export class BaseGeometry implements GeometryStandard {
       if (!points[i + 2] && points.length > 2) i = 0
     }
   }
+
+  public destroy() {
+    
+  }
 }

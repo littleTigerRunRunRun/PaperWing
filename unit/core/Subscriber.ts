@@ -8,7 +8,7 @@ const {
   remove,
   broadcast,
   clear
-} = Subscriber
+} = new Subscriber()
 
 class Human {
   public name:string

@@ -1,4 +1,5 @@
 import { Accumulator } from '../index'
+import Subscriber from '../../core/Subscriber'
 
 interface ChildIndexGather {
   [key:number]: Leaflike
@@ -80,11 +81,16 @@ interface LeafConfig {
 // 可以被添加为子节点的对象的抽象
 export class Leaflike {
   // name在PaperWing中是给用户用的
-  public name: string = ''
-  public parent: Treelike
+  public name:string = ''
+  public parent:Treelike
+  protected subscriber:Subscriber
 
   constructor({ name = '' }:LeafConfig) {
     this.name = name
+  }
+
+  public setSubscriber(subscriber:Subscriber) {
+    this.subscriber = subscriber
   }
 }
 
