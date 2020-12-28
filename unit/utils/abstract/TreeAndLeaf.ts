@@ -11,6 +11,10 @@ export default function main(canvas: HTMLCanvasElement) {
     geometry: {
       type: 'rect',
       config: { width: 100, height: 100 }
+    },
+    material: {
+      type: 'pure',
+      config: { r: 1, g: 0.3, b: 0.2, a: 1 }
     }
   })
   shape.name = 'testShape'

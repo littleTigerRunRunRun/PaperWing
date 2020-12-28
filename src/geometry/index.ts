@@ -6,4 +6,7 @@ export const Geometrys = {
 
 export type GeometryType = RectGeometry
 
-export type GeometryConfig = { type: 'rect', config: RectGeometryShapeConfig }
+export type GeometryConfig = {
+  type:'rect',
+  config:RectGeometryShapeConfig
+}

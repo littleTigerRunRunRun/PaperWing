@@ -52,13 +52,34 @@ export class BaseGeometry implements GeometryStandard {
   public indices:Array<number> = []
   public geometry:LumaGeometry
   public config:any
+  
+  // 可以动态操作的x/y
+  public matrixNeedRefresh:boolean = true
+  protected _x:number = 0
+  protected _y:number = 0
+  public get x():number { return this._x }
+  public set x(x:number) {
+    if (x !== undefined && this._x === x) return
+    this._x = x
+    this.matrixNeedRefresh = true
+  }
+  public get y():number { return this._y }
+  public set y(y:number) {
+    if (y !== undefined && this._y === y) return
+    this._y = y
+    this.matrixNeedRefresh = true
+  }
 
+  /************ CONSTRUCTOR ************/
   constructor(config:any) {
     this.refreshGeometry(config)
   }
 
   // 传入config然后赋值
-  public refreshConfig(config:any) {}
+  public refreshConfig(config:any) {
+    this.x = config.x
+    this.y = config.y
+  }
 
   public refreshGeometry(config:any) {
     this.refreshConfig(config)

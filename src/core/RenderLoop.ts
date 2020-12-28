@@ -48,7 +48,7 @@ export class RenderLoopCarrier {
     this.subscriber.remove('loopRender', callback)
   }
 
-  public addFrameComp(compName:string, frameCompute:FrameCompute) {
+  public addFrameCompute(compName:string, frameCompute:FrameCompute) {
     this.loop.addFrameCompute(compName, frameCompute)
   }
 
@@ -60,6 +60,10 @@ export class RenderLoopCarrier {
   // 取消一个监听
   public unbind(eventName:string, callback:Function) {
     this.subscriber.remove(eventName, callback)
+  }
+
+  public once(eventName:string, callback:Function) {
+    this.subscriber.once(eventName, callback)
   }
 }
 
