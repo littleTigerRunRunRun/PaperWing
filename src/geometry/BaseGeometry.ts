@@ -12,8 +12,13 @@ export interface GeometryStandard {
   config:any
   refreshConfig(config:any)
   refreshGeometry(config:any)
-  generatePoints(...argus:Array<any>) // 根据参数，生成标准化的几何
+  generatePoints(...argus:Array<any>):Bound // 根据参数，生成标准化的几何，并且要返还无位置包围盒
   fragmentate() // 根据参数，将几何内容计算成标准的片元顶点集合
+}
+
+type Bound = {
+  width:number
+  height:number
 }
 
 interface LumaGeometryConfig {
@@ -51,22 +56,33 @@ export class BaseGeometry implements GeometryStandard {
   public normals:Array<Vector2> = []
   public indices:Array<number> = []
   public geometry:LumaGeometry
+  public bound:Bound
   public config:any
   
-  // 可以动态操作的x/y
   public matrixNeedRefresh:boolean = true
+
+  // translate
   protected _x:number = 0
   protected _y:number = 0
   public get x():number { return this._x }
   public set x(x:number) {
-    if (x !== undefined && this._x === x) return
+    if (x === undefined || this._x === x) return
     this._x = x
     this.matrixNeedRefresh = true
   }
   public get y():number { return this._y }
   public set y(y:number) {
-    if (y !== undefined && this._y === y) return
+    if (y === undefined || this._y === y) return
     this._y = y
+    this.matrixNeedRefresh = true
+  }
+
+  // rotate
+  protected _rotate:number = 0
+  public get rotate():number { return this._rotate }
+  public set rotate(rotate:number) {
+    if (rotate === undefined || this._rotate === rotate) return
+    this._rotate = rotate
     this.matrixNeedRefresh = true
   }
 
@@ -77,15 +93,16 @@ export class BaseGeometry implements GeometryStandard {
 
   // 传入config然后赋值
   public refreshConfig(config:any) {
-    this.x = config.x
-    this.y = config.y
+    this.x = config.x || 0
+    this.y = config.y || 0
+    this.rotate = config.rotate || 0
   }
 
   public refreshGeometry(config:any) {
     this.refreshConfig(config)
 
     // 将输入的参数转化成点
-    this.generatePoints()
+    this.bound = this.generatePoints()
 
     // 计算法向量
     this.computeClosedNormals()
@@ -121,8 +138,9 @@ export class BaseGeometry implements GeometryStandard {
     else this.geometry.rebuild({ positions, normals, indices: this.indices })
   }
 
-  public generatePoints(...argus:Array<any>) {
-    console.log('generate')
+  public generatePoints(...argus:Array<any>):Bound {
+    // console.log('generate')
+    return { width: 0, height: 0 }
   }
 
   // 将普通的用于描述连线的顶点通过某些方法连接起来，形成诸多三角形，本方法只适用于凸多边形

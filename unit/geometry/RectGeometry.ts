@@ -14,7 +14,7 @@ export default function main(canvas: HTMLCanvasElement) {
     name: 'test',
     geometry: {
       type: 'rect',
-      config: { width: 100, height: 100, stroke: 0, x: 100, y: 100 }
+      config: { width: 100, height: 100, stroke: 0, x: 0, y: 0, rotate: 0 }
     },
     material: {
       type: 'pure',
@@ -23,7 +23,8 @@ export default function main(canvas: HTMLCanvasElement) {
   })
   scene.add(rect1)
 
-  // scene.tick(({ time }) => {
-  //   rect1.x = Math.sin(time * 0.002 + Math.PI * 0.5) * -500 + 600
-  // })
+  scene.tick(({ time }) => {
+    rect1.x = Math.sin(time * 0.002 + Math.PI * 0.5) * 200
+    rect1.rotate = time * 0.002
+  })
 }

@@ -3,11 +3,12 @@
 // 而因为其本身都是一个矩阵变换的问题，所以是可以统一起来的
 
 import { Matrix4 } from 'math.gl'
+import { Length16Array } from '@/common'
 
 export interface Viewer {
   viewMatrix:Matrix4
   projectionMatrix:Matrix4
-  // resolutionMatrix:Matrix4
+  // resolutionMatrix:Matrix4 
   computeResolutionMatrix(width:number, height:number):Matrix4
 }
 
@@ -44,20 +45,16 @@ export class BaseViewer implements Viewer {
     this.glWidth = width
     this.glHeight = height
 
+    const matrix:Length16Array = [
+      2/width, 0, 0, 0,
+      0, -2/height, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    ]
     if (this.resolutionMatrix) {
-      this.resolutionMatrix.set(
-        2/width, 0, 0, 0,
-        0, -2/height, 0, 0,
-        0, 0, 1, 0,
-        -1, 1, 0, 1
-      )
+      this.resolutionMatrix.set(...matrix)
     } else {
-      this.resolutionMatrix = new Matrix4([
-        2/width, 0, 0, 0,
-        0, -2/height, 0, 0,
-        0, 0, 1, 0,
-        -1, 1, 0, 1
-      ])
+      this.resolutionMatrix = new Matrix4(matrix)
     } 
 
     return this.resolutionMatrix

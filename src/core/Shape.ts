@@ -1,7 +1,7 @@
 import { Leaflike, constantValue } from '../utils'
 import { Geometrys, GeometryType, GeometryConfig } from '../geometry/index'
 import { Materials, MaterialType, MaterialConfig } from '../material/index'
-import { GLContext } from '@/common'
+import { GLContext, Length16Array } from '@/common'
 import { Model } from '@luma.gl/engine'
 import { RenderParams } from './Scene'
 import { Matrix4 } from 'math.gl'
@@ -22,9 +22,11 @@ export class Shape extends Leaflike {
   private materialConfig:MaterialConfig
 
   public set x(x:number) { this.geometry.x = x }
-  public get x() { return this.geometry.x }
+  public get x():number { return this.geometry.x }
   public set y(y:number) { this.geometry.y = y }
-  public get y() { return this.geometry.y }
+  public get y():number { return this.geometry.y }
+  public set rotate(rotate:number) { this.geometry.rotate = rotate }
+  public get rotate():number { return this.geometry.rotate }
 
   constructor({ name, geometry, material }:ShapeConfig) {
     super({ name })
@@ -115,20 +117,24 @@ export class Shape extends Leaflike {
 
   private checkModelMatrix() {
     if (this.geometry.matrixNeedRefresh) {
+      const ax = 0.5 // anchor x
+      const ay = 0.5
+      const w = this.geometry.bound.width
+      const h = this.geometry.bound.height
+      const sx = 1 // scale x
+      const sy = 1
+      const sina = Math.sin(this.geometry.rotate)
+      const cosa = Math.cos(this.geometry.rotate)
+      const matrixArray:Length16Array = [
+        sx * cosa, sx * -sina, 0, 0,
+        sy * sina, sy * cosa, 0, 0,
+        0, 0, 1, 0,
+        this.geometry.x, this.geometry.y, 0, 1
+      ]
       if (this.modelMatrix) {
-        this.modelMatrix.set(
-          1, 0, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 1, 0,
-          this.geometry.x, this.geometry.y, 0, 1
-        )
+        this.modelMatrix.set(...matrixArray)
       } else {
-        this.modelMatrix = new Matrix4([
-          1, 0, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 1, 0,
-          this.geometry.x, this.geometry.y, 0, 1
-        ])
+        this.modelMatrix = new Matrix4(matrixArray)
       }
     }
     (this.model as any).uniforms.u_modelMatrix = this.modelMatrix
