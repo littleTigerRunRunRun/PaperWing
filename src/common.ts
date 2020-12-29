@@ -12,6 +12,7 @@ export type GLContext = WebGLRenderingContext | WebGL2RenderingContext
 export interface Point {
   x:number
   y:number
+  z?:number
 }
 
 export interface PWPoint {

@@ -51,6 +51,7 @@ class LumaGeometry extends Geometry {
 
 // 几何类型的基类
 export class BaseGeometry implements GeometryStandard {
+  protected dimension:number = 2
   public length:number = 0
   public points:Array<PWPoint> = []
   public normals:Array<Vector2> = []

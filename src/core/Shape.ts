@@ -1,5 +1,5 @@
 import { Leaflike, constantValue } from '../utils'
-import { Geometrys, GeometryType, GeometryConfig } from '../geometry/index'
+import { getGeometry, GeometryType, GeometryConfig } from '../geometry/index'
 import { Materials, MaterialType, MaterialConfig } from '../material/index'
 import { GLContext, Length16Array } from '@/common'
 import { Model } from '@luma.gl/engine'
@@ -8,6 +8,7 @@ import { Matrix4 } from 'math.gl'
 
 interface ShapeConfig {
   name?:string
+  visible?:boolean
   geometry:GeometryConfig,
   material:MaterialConfig
 }
@@ -27,10 +28,15 @@ export class Shape extends Leaflike {
   public get y():number { return this.geometry.y }
   public set rotate(rotate:number) { this.geometry.rotate = rotate }
   public get rotate():number { return this.geometry.rotate }
+  
+  private _visible:boolean
+  get visible() { return this._visible }
+  set visible(visible:boolean) { this._visible = visible }
 
-  constructor({ name, geometry, material }:ShapeConfig) {
+  constructor({ name, geometry, material, visible = true }:ShapeConfig) {
     super({ name })
 
+    this.visible = visible
     this.geometryConfig = geometry
     this.materialConfig = material
   }
@@ -47,7 +53,7 @@ export class Shape extends Leaflike {
   }
 
   private init(geometry:GeometryConfig, material:MaterialConfig) {
-    this.geometry = new Geometrys[geometry.type](geometry.config)
+    this.geometry = getGeometry(geometry)
     this.material = new Materials[material.type](material.config)
 
     const is2:boolean = (this.gl as any)._version === 2
@@ -84,7 +90,7 @@ export class Shape extends Leaflike {
         out vec4 fragColor;
 
         void main() {
-          fragColor = vec4(v_uv.x, f0, f0, f1);
+          fragColor = vec4(v_uv.xy, f0, f1);
         }
       ` : `
         varying vec2 v_uv;
@@ -106,6 +112,7 @@ export class Shape extends Leaflike {
   
   // give uniforms
   public render({ uniforms = {} }:RenderParams) {
+    if (!this.visible) return
     // console.log(uniforms)
     for (const key in uniforms) {
       (this.model as any).uniforms[key] =uniforms[key]

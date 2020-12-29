@@ -4,7 +4,7 @@ import { PWPoint } from '@/common'
 export interface RectGeometryShapeConfig {
   x?: number
   y?: number
-  rotate: number
+  rotate?: number
   width: number
   height: number
   stroke?: number

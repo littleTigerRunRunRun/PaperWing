@@ -18,7 +18,7 @@ export interface Viewer {
 // none不作任何处理，直接往width * height的画布上放
 type FitScheme = 'auto' | 'cover' | 'contain' | 'none'
 
-interface BaseViewerParams {
+export interface BaseViewerParams {
   width?:number
   height?:number
   fit?:FitScheme
