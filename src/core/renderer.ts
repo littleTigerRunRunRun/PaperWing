@@ -41,11 +41,14 @@ export class Renderer {
 
     // 这里的child可以是group、shape和particle
     // shape和particle属于带有model的绘制，而group属于
+    const projectionMatrix = viewer.computeProjectionMatrix(this.gl.drawingBufferWidth, this.gl.drawingBufferHeight)
     this.scene.children.forEach((child) => child.render({
       uniforms: {
-        u_resolutionMatrix: viewer.computeResolutionMatrix(this.gl.drawingBufferWidth, this.gl.drawingBufferHeight)
+        u_projectionMatrix: projectionMatrix,
+        u_viewMatrix: viewer.viewMatrix
       }
     }))
+    // console.log(projectionMatrix)
   }
 
   public destroy() {

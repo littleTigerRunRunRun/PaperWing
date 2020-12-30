@@ -61,25 +61,27 @@ export class Shape extends Leaflike {
       vs: is2 ? `#version 300 es
         layout (location = 0) in vec4 positions;
 
-        uniform mat4 u_resolutionMatrix;
+        uniform mat4 u_projectionMatrix;
+        uniform mat4 u_viewMatrix;
         uniform mat4 u_modelMatrix;
 
         out vec2 v_uv;
 
         void main() {
-          gl_Position = vec4((u_resolutionMatrix * u_modelMatrix * vec4(positions.xyz, f1)).xyz, f1);
+          gl_Position = vec4((u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(positions.xyz, f1)).xyz, f1);
           v_uv = gl_Position.xy * fhalf + fhalf;
         }
       ` : `
         attribute vec3 positions;
 
-        uniform mat4 u_resolutionMatrix;
+        uniform mat4 u_projectionMatrix;
+        uniform mat4 u_viewMatrix;
         uniform mat4 u_modelMatrix;
 
         varying vec2 v_uv;
 
         void main() {
-          gl_Position = vec4((u_resolutionMatrix * u_modelMatrix * vec4(positions.xyz, f1)).xyz, f1);
+          gl_Position = vec4((u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(positions.xyz, f1)).xyz, f1);
           v_uv = gl_Position.xy * fhalf + fhalf;
         }
       `,
@@ -103,7 +105,6 @@ export class Shape extends Leaflike {
 
       },
       uniforms: Object.assign({
-        u_resolution: [1, 1]
       }),
       modules: [constantValue],
       geometry: this.geometry.geometry

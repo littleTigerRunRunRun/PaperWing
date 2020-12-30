@@ -1,4 +1,6 @@
 import { AnimationLoop } from '@luma.gl/engine'
+import { setParameters } from '@luma.gl/gltools'
+import GL from '@luma.gl/constants'
 import { Dictionary, GLContext } from '@/common'
 import Subscriber from './Subscriber'
 
@@ -94,7 +96,14 @@ export class RenderLoop {
     this.loop = new AnimationLoop({
       onInitialize: ({ gl }:AnimationLoopInitializeArguments) => {
         this.gl = gl
-        this.subscriber.broadcast('getGl', gl)        
+        this.subscriber.broadcast('getGl', gl)
+        
+        setParameters(gl, {
+          depthTest: true,
+          cull: true,
+          cullFace: GL.BACK
+          // depthFunc: gl.LEQUAL
+        })
 
         return {}
       },

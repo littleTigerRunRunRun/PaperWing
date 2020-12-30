@@ -1,6 +1,7 @@
 import { 
   Scene,
   Shape,
+  OrthoViewer,
   BaseViewer
 } from '../../src/index'
 
