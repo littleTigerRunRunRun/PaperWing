@@ -3,6 +3,7 @@ import { PWPoint, Point } from '@/common'
 import { Vector2 } from 'math.gl'
 
 export interface LineGeometryShapeConfig {
+  type: string
   start: Point
   end: Point
   width: number

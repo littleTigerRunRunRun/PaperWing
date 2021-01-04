@@ -2,6 +2,7 @@ import { BaseGeometry } from './BaseGeometry'
 import { PWPoint } from '@/common'
 
 export interface RectGeometryShapeConfig {
+  type: string
   x?: number
   y?: number
   rotate?: number

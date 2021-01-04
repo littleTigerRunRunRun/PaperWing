@@ -1,9 +1,13 @@
 import { PureColorMaterial, PureColorMaterialConfig } from './PureColorMaterial'
 
-export const Materials = {
-  pure: PureColorMaterial
-}
-
 export type MaterialType = PureColorMaterial
 
-export type MaterialConfig = { type: 'pure', config: PureColorMaterialConfig }
+export type MaterialConfig = PureColorMaterialConfig
+
+export function getMaterial(config:MaterialConfig) {
+  let prototype
+  switch(config.type) {
+    case 'pure': prototype = PureColorMaterial; break
+  }
+  return new prototype(config)
+}
