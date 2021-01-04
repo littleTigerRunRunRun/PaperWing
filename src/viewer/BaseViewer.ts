@@ -5,6 +5,7 @@ export interface Viewer {
   viewMatrix:Matrix4
   projectionMatrix:Matrix4
   computeProjectionMatrix(width:number, height:number):Matrix4
+  destroy()
 }
 
 // 这个版本就是一个真正的纯2d viewer
@@ -35,7 +36,7 @@ export class BaseViewer implements Viewer {
 
     const matrix:Length16Array = [
       2/width, 0, 0, 0,
-      0, -2/height, 0, 0,
+      0, 2/height, 0, 0,
       0, 0, 1, 0,
       0, 0, 0, 1
     ]
@@ -48,4 +49,6 @@ export class BaseViewer implements Viewer {
 
     return this.projectionMatrix
   }
+
+  public destroy() {}
 }

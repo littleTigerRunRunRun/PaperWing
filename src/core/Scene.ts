@@ -49,7 +49,7 @@ export class Scene extends SceneTreelike {
 
   public add(child:SceneChild):number {
     if (child.parent === this) return
-    
+
     const index = super.add(child)
     child.setSubscriber(this.subscriber)
 
@@ -57,6 +57,10 @@ export class Scene extends SceneTreelike {
   }
 
   public destroy() {
+    this.clearChildren()
     this.subscriber.clear()
+    if (this.loop) this.loop.destroy()
+    if (this.viewer) this.viewer.destroy()
+    if (this.renderer) this.renderer.destroy()
   }
 }

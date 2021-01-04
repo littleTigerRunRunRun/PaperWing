@@ -68,13 +68,19 @@ export class Treelike {
     childNode.parent = null
   }
 
-  getChildByIndex(index:number):Leaflike {
+  public getChildByIndex(index:number):Leaflike {
     return this.childrenIndexs[index]
   }
 
-  getChildByName(name:string):Leaflike {
+  public getChildByName(name:string):Leaflike {
     return this.getChildByIndex(this.childrenNames[name])
   }
+
+  public clearChildren() {
+    for (let child of this.children) {
+      this.remove(child)
+    }
+  }  
 }
 
 interface LeafConfig {

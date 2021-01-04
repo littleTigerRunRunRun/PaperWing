@@ -25,7 +25,6 @@ export class OrthoViewer extends BaseViewer {
     this.near = near
 
     this.viewMatrix = this.viewMatrix.lookAt({ eye: [0, 0, far * 0.5], center: [0, 0, 0], up: [0, 1, 0] })
-    console.log(this.viewMatrix)
   }
 
   public computeProjectionMatrix(width:number, height:number):Matrix4 {

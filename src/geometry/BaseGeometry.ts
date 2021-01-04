@@ -51,7 +51,7 @@ class LumaGeometry extends Geometry {
 
 // 几何类型的基类
 export class BaseGeometry implements GeometryStandard {
-  protected dimension:number = 2
+  protected dimension:number
   public length:number = 0
   public points:Array<PWPoint> = []
   public normals:Array<Vector2> = []
@@ -89,6 +89,9 @@ export class BaseGeometry implements GeometryStandard {
 
   /************ CONSTRUCTOR ************/
   constructor(config:any) {
+    const { dimension = 2 } = config
+    this.dimension = dimension
+
     this.refreshGeometry(config)
   }
 
