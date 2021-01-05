@@ -101,7 +101,7 @@ export class Shape extends Leaflike {
           uniforms: Object.assign({
           }, strokeReceipt.uniforms),
           modules: [constantValue],
-          geometry: this.geometry.geometry
+          geometry: this.geometry.strokeGeometry
         })
       }
     }
@@ -120,13 +120,22 @@ export class Shape extends Leaflike {
       this.checkModelMatrix(this.model)
       this.model.draw()
     } else {
+      const strokeUniforms = Object.assign({}, uniforms, this.stroke.getUniforms())
       Object.assign(uniforms, this.fill.getUniforms())
-      // console.log(uniforms)
+      
       for (const key in uniforms) {
         (this.fillModel as any).uniforms[key] =uniforms[key]
       }
       this.checkModelMatrix(this.fillModel)
       this.fillModel.draw()
+
+      if (this.stroke) {
+        for (const key in strokeUniforms) {
+          (this.strokeModel as any).uniforms[key] =strokeUniforms[key]
+        }
+        this.checkModelMatrix(this.strokeModel)
+        this.strokeModel.draw()
+      }
     }
   }
 

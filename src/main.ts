@@ -33,9 +33,9 @@ function main(canvas: HTMLCanvasElement) {
 
   const rect1:Shape = new Shape({
     name: 'test',
-    geometry: { type: 'rect', width: 200, height: 100, stroke: 0, x: 0, y: 0, rotate: 0 },
+    geometry: { type: 'rect', width: 200, height: 100, stroke: 4, x: 0, y: 0, rotate: 0 },
     fill: { type: 'pure', r: 1, g: 0.5, b: 0.2, a: 1 },
-    stroke: { type: 'pure', r: 1, g: 1, b: 1, a: 0.4 }
+    stroke: { type: 'pure', r: 1, g: 1, b: 1, a: 0.8 }
   })
   scene.add(rect1)
 

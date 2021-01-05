@@ -4,6 +4,7 @@ import { Geometry } from '@luma.gl/engine'
 
 // 用于给各种Geometry实现用的接口
 export interface GeometryStandard {
+  stroke?:number
   length:number
   points:Array<PWPoint>
   normals:Array<Vector2>
@@ -14,6 +15,7 @@ export interface GeometryStandard {
   refreshGeometry(config:any)
   generatePoints(...argus:Array<any>):Bound // 根据参数，生成标准化的几何，并且要返还无位置包围盒
   fragmentate() // 根据参数，将几何内容计算成标准的片元顶点集合
+  strokeFragmentate?()
 }
 
 type Bound = {
@@ -57,6 +59,10 @@ export class BaseGeometry implements GeometryStandard {
   public normals:Array<Vector2> = []
   public indices:Array<number> = []
   public geometry:LumaGeometry
+  public strokeGeometry:LumaGeometry
+  public stroke:number = 0
+  public strokePoints:Array<PWPoint> = []
+  public strokeIndices:Array<number> = []
   public bound:Bound
   public config:any
   
@@ -111,8 +117,8 @@ export class BaseGeometry implements GeometryStandard {
     // 计算法向量
     this.computeClosedNormals()
 
-    // 计算描边形状的顶点
-    // console.log(stroke)
+    // 如果有stroke这个概念，则需要校正点，并且生成stroke的geometry
+    if (this.stroke) this.strokeFragmentate()
 
     // 片元化
     this.fragmentate()
@@ -126,7 +132,11 @@ export class BaseGeometry implements GeometryStandard {
     for (let i = 0; i < this.points.length; i++) {
       const nextPoint = this.points[i + 1] ? this.points[i + 1] : this.points[0]
       const prevPoint = this.points[i - 1] ? this.points[i - 1] : this.points[this.points.length - 1]
-      this.normals.push(new Vector2(this.points[i].x * 2 - nextPoint.x - prevPoint.x, this.points[i].y * 2 - nextPoint.y - prevPoint.y).normalize())
+      const v1 = new Vector2(this.points[i].x - nextPoint.x, this.points[i].y - nextPoint.y).normalize()
+      const v2 = new Vector2(this.points[i].x - prevPoint.x, this.points[i].y - prevPoint.y).normalize()
+      v1.add(v2)
+      v1.normalize()
+      this.normals.push(v1)
     }
   }
 
@@ -140,6 +150,17 @@ export class BaseGeometry implements GeometryStandard {
 
     if (!this.geometry) this.geometry = new LumaGeometry({ positions, normals, indices: this.indices })
     else this.geometry.rebuild({ positions, normals, indices: this.indices })
+
+    if (this.stroke) {
+      const strokePositions = []
+      this.strokePoints.forEach((point) => strokePositions.push(...[point.x, point.y, point.z, point.w]))
+
+      const strokeNormals = []
+      this.normals.forEach((normal, index) => strokeNormals.push(...[normal.x, normal.y, this.points[index].z]))
+      this.normals.forEach((normal, index) => strokeNormals.push(...[normal.x, normal.y, this.points[index].z]))
+
+      if (!this.strokeGeometry) this.strokeGeometry = new LumaGeometry({ positions: strokePositions, normals: strokeNormals, indices: this.strokeIndices })
+    }
   }
 
   public generatePoints(...argus:Array<any>):Bound {
@@ -160,6 +181,43 @@ export class BaseGeometry implements GeometryStandard {
       i++
       // 当后续可以成三角形的点不足2个了，并且剩余的点还有3个或以上，则i返回到0重新运行逻辑
       if (!points[i + 2] && points.length > 2) i = 0
+    }
+  }
+
+  public strokeFragmentate() {
+    // 根据normal修正
+    this.strokePoints.splice(0, this.strokePoints.length)
+
+    for (let i = 0;i < this.points.length; i++) {
+      const offsetVector = this.normals[i].clone().multiplyScalar(this.stroke * -0.5)
+      const strokePoint = Object.assign({}, this.points[i])
+      
+      this.points[i].x += offsetVector.x
+      this.points[i].y += offsetVector.y
+      strokePoint.x -= offsetVector.x
+      strokePoint.y -= offsetVector.y
+
+      this.strokePoints.push(strokePoint)
+    }
+    this.strokePoints.splice(0, 0, ...this.points)
+
+    const pLength = this.points.length
+    for (let i = 0; i < pLength; i++) {
+      if (i === pLength - 1) {
+        this.strokeIndices.push(i)
+        this.strokeIndices.push(i + pLength)
+        this.strokeIndices.push(pLength)
+        this.strokeIndices.push(pLength)
+        this.strokeIndices.push(0)
+        this.strokeIndices.push(i)
+      } else {
+        this.strokeIndices.push(i)
+        this.strokeIndices.push(i + pLength)
+        this.strokeIndices.push(i + pLength + 1)
+        this.strokeIndices.push(i + pLength + 1)
+        this.strokeIndices.push(i + 1)
+        this.strokeIndices.push(i)
+      }
     }
   }
 
