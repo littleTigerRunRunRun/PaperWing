@@ -1,5 +1,5 @@
-import { Leaflike, Treelike } from '../utils'
-import { mixin } from '../utils/mixin'
+import { childlike, Treelike } from '../utils'
+import { mixin } from '../utils'
 import { Renderer } from './Renderer'
 import { RenderLoop, AnimationLoopStartOptions, RenderLoopCarrier } from './RenderLoop'
 import Subscriber from './Subscriber'
@@ -15,10 +15,6 @@ interface SceneInitConifg {
 //   get():GLContext
 // }
 
-interface SceneChild extends Leaflike {
-  render(RenderParams)
-}
-
 export interface RenderParams {
   uniforms:Dictionary<any>
 }
@@ -32,7 +28,7 @@ export class Scene extends SceneTreelike {
   public canvas: HTMLCanvasElement
   public renderer:Renderer
   public viewer:Viewer
-  public children:Array<SceneChild> = []
+  public children:Array<childlike> = []
   public get is2() { return this.loop && this.loop.version === 2 }
   protected subscriber:Subscriber
   
@@ -47,7 +43,7 @@ export class Scene extends SceneTreelike {
     this.renderer = new Renderer({ scene: this, stats })
   }
 
-  public add(child:SceneChild):number {
+  public add(child:childlike):number {
     if (child.parent === this) return
 
     const index = super.add(child)

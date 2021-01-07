@@ -11,11 +11,11 @@ export interface GeometryStandard {
   indices:Array<number>
   geometry:Geometry
   config:any
-  refreshConfig(config:any)
-  refreshGeometry(config:any)
-  generatePoints(...argus:Array<any>):Bound // 根据参数，生成标准化的几何，并且要返还无位置包围盒
-  fragmentate() // 根据参数，将几何内容计算成标准的片元顶点集合
-  strokeFragmentate?()
+  _refreshConfig(config:any)
+  _refreshGeometry(config:any)
+  _generatePoints(...argus:Array<any>):Bound // 根据参数，生成标准化的几何，并且要返还无位置包围盒
+  _fragmentate() // 根据参数，将几何内容计算成标准的片元顶点集合
+  _strokeFragmentate?()
 }
 
 type Bound = {
@@ -98,30 +98,31 @@ export class BaseGeometry implements GeometryStandard {
     const { dimension = 2 } = config
     this.dimension = dimension
 
-    this.refreshGeometry(config)
+    this._refreshGeometry(config)
   }
 
   // 传入config然后赋值
-  public refreshConfig(config:any) {
+  public _refreshConfig(config:any) {
     this.x = config.x || 0
     this.y = config.y || 0
     this.rotate = config.rotate || 0
   }
 
-  public refreshGeometry(config:any) {
-    this.refreshConfig(config)
+  public _refreshGeometry(config?:any) {
+    if (!config) config = this.config
+    this._refreshConfig(config)
 
     // 将输入的参数转化成点
-    this.bound = this.generatePoints()
+    this.bound = this._generatePoints()
 
     // 计算法向量
     this.computeClosedNormals()
 
     // 如果有stroke这个概念，则需要校正点，并且生成stroke的geometry
-    if (this.stroke) this.strokeFragmentate()
+    if (this.stroke) this._strokeFragmentate()
 
     // 片元化
-    this.fragmentate()
+    this._fragmentate()
 
     // 构建Geometry对象
     this.buildGeometry()
@@ -163,13 +164,13 @@ export class BaseGeometry implements GeometryStandard {
     }
   }
 
-  public generatePoints(...argus:Array<any>):Bound {
+  public _generatePoints(...argus:Array<any>):Bound {
     // console.log('generate')
     return { width: 0, height: 0 }
   }
 
   // 将普通的用于描述连线的顶点通过某些方法连接起来，形成诸多三角形，本方法只适用于凸多边形
-  public fragmentate() {
+  public _fragmentate() {
     const points = this.points.map((point, index) => index) // 以6变形为例测试
     this.indices.splice(0, this.indices.length)
 
@@ -184,7 +185,7 @@ export class BaseGeometry implements GeometryStandard {
     }
   }
 
-  public strokeFragmentate() {
+  public _strokeFragmentate() {
     // 根据normal修正
     this.strokePoints.splice(0, this.strokePoints.length)
 

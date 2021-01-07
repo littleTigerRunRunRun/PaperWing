@@ -3,7 +3,7 @@ import { PWPoint, Point } from '@/common'
 import { Vector2 } from 'math.gl'
 
 export interface LineGeometryShapeConfig {
-  type: string
+  type?: string
   start: Point
   end: Point
   width: number
@@ -17,14 +17,14 @@ export class LineGeometry extends BaseGeometry {
     super(config)
   }
 
-  public refreshConfig(config:LineGeometryShapeConfig) {
-    super.refreshConfig(config)
+  public _refreshConfig(config:LineGeometryShapeConfig) {
+    super._refreshConfig(config)
 
     if (!this.config) this.config = Object.assign({}, config)
     else Object.assign(this.config, config)
   }
 
-  public generatePoints() {
+  public _generatePoints() {
     const { width, start, end } = this.config
     this.length = Math.hypot(end.x - start.x, end.y - start.y)
 

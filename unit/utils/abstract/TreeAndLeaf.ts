@@ -8,14 +8,8 @@ export default function main(canvas: HTMLCanvasElement) {
   const scene:Scene = new Scene({ canvas })
 
   const shape:Shape = new Shape({
-    geometry: {
-      type: 'rect',
-      config: { width: 100, height: 100 }
-    },
-    material: {
-      type: 'pure',
-      config: { r: 1, g: 0.3, b: 0.2, a: 1 }
-    }
+    geometry: { type: 'rect', width: 100, height: 100 },
+    material: { type: 'pure', r: 1, g: 0.3, b: 0.2, a: 1 }
   })
   shape.name = 'testShape'
 

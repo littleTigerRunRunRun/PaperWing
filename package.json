@@ -16,11 +16,13 @@
   "dependencies": {
     "@luma.gl/engine": "^8.3.2",
     "@luma.gl/webgl": "^8.3.2",
+    "dat.gui": "^0.7.7",
     "lodash": "^4.17.20",
     "math.gl": "^3.3.2",
     "stats.js": "^0.17.0"
   },
   "devDependencies": {
+    "@types/dat.gui": "^0.7.6",
     "@types/lodash": "^4.14.165",
     "@types/stats.js": "^0.17.0",
     "clean-webpack-plugin": "^3.0.0",

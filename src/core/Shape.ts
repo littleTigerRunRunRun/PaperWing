@@ -3,6 +3,7 @@ import { getGeometry, GeometryType, GeometryConfig } from '../geometry/index'
 import { getMaterial, MaterialType, MaterialConfig } from '../material/index'
 import { GLContext, Length16Array } from '@/common'
 import { Model } from '@luma.gl/engine'
+import { setParameters } from '@luma.gl/gltools'
 import { RenderParams } from './Scene'
 import { Matrix4 } from 'math.gl'
 
@@ -70,6 +71,10 @@ export class Shape extends Leaflike {
 
     const is2:boolean = (this.gl as any)._version === 2
 
+    setParameters(this.gl, {
+      blend: true
+    })
+
     if (this.material) {
       const receipt = this.material.getReceipt(is2)
       this.model = new Model(this.gl, {
@@ -82,16 +87,18 @@ export class Shape extends Leaflike {
         geometry: this.geometry.geometry
       })
     } else {
-      const fillReceipt = this.fill.getReceipt(is2)
-      this.fillModel = new Model(this.gl, {
-        vs: fillReceipt.vs,
-        fs: fillReceipt.fs,
-        defines: {},
-        uniforms: Object.assign({
-        }, fillReceipt.uniforms),
-        modules: [constantValue],
-        geometry: this.geometry.geometry
-      })
+      if (this.fill) {
+        const fillReceipt = this.fill.getReceipt(is2)
+        this.fillModel = new Model(this.gl, {
+          vs: fillReceipt.vs,
+          fs: fillReceipt.fs,
+          defines: {},
+          uniforms: Object.assign({
+          }, fillReceipt.uniforms),
+          modules: [constantValue],
+          geometry: this.geometry.geometry
+        })
+      }
       if (this.stroke) {
         const strokeReceipt = this.stroke.getReceipt(is2)
         this.strokeModel = new Model(this.gl, {
@@ -119,23 +126,30 @@ export class Shape extends Leaflike {
       }
       this.checkModelMatrix(this.model)
       this.model.draw()
-    } else {
-      const strokeUniforms = Object.assign({}, uniforms, this.stroke.getUniforms())
-      Object.assign(uniforms, this.fill.getUniforms())
-      
-      for (const key in uniforms) {
-        (this.fillModel as any).uniforms[key] =uniforms[key]
+    }
+    if (this.fill) {
+      const fillUniforms = Object.assign({}, uniforms, this.fill.getUniforms())
+      Object.assign({}, uniforms, this.fill.getUniforms())
+      for (const key in fillUniforms) {
+        (this.fillModel as any).uniforms[key] = fillUniforms[key]
       }
       this.checkModelMatrix(this.fillModel)
       this.fillModel.draw()
-
-      if (this.stroke) {
-        for (const key in strokeUniforms) {
-          (this.strokeModel as any).uniforms[key] =strokeUniforms[key]
-        }
-        this.checkModelMatrix(this.strokeModel)
-        this.strokeModel.draw()
+    }
+    if (this.stroke) {
+      const strokeUniforms = Object.assign({}, uniforms, this.stroke.getUniforms())
+      for (const key in strokeUniforms) {
+        (this.strokeModel as any).uniforms[key] = strokeUniforms[key]
       }
+      this.checkModelMatrix(this.strokeModel)
+      this.strokeModel.draw()
+    }
+  }
+
+  public refreshGeometry(config:any) {
+    if (!this.subscriber) {
+      console.error('你不能在shape被添加为子元素前就调用refreshGeometry')
+      return
     }
   }
 

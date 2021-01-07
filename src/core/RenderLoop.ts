@@ -101,7 +101,8 @@ export class RenderLoop {
         setParameters(gl, {
           depthTest: true,
           cull: true,
-          cullFace: GL.BACK
+          cullFace: GL.BACK,
+          blendFunc: [gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE]
           // depthFunc: gl.LEQUAL
         })
 

@@ -2,16 +2,19 @@ import { Accumulator } from '../index'
 import Subscriber from '../../core/Subscriber'
 
 interface ChildIndexGather {
-  [key:number]: Leaflike
+  [key:number]: childlike
 }
 
 interface ChildNameGather {
   [key:string]: number
 }
 
+export type childlike = Branchlike | Leaflike
+export type parentlike = Treelike | Branchlike
+
 // 可以添加子节点的对象的抽象
 export class Treelike {
-  public children:Array<Leaflike> = []
+  public children:Array<childlike> = []
   
   // 产生子节点index用的累加器对象
   protected childrenIndexAccumulator:Accumulator = new Accumulator()
@@ -21,7 +24,7 @@ export class Treelike {
   protected childrenNames:ChildNameGather = {}
 
   // 添加一个叶节点为子节点，倘若叶节点有name，这个name也会被存储
-  public add(child:Leaflike):number {
+  public add(child:childlike):number {
     // 如果child本身已经有父元素了，需要移除
     if (child.parent) {
       if (child.parent === this) return // 父级就是自己，是重复添加，直接退出
@@ -37,7 +40,7 @@ export class Treelike {
   }
   
   // 根据子节点对象、子节点name、add时返回的index删除child，会同时删除三层
-  public remove(child:Leaflike | string | number) {
+  public remove(child:childlike | string | number) {
     let name = ''
     let index = -1
     let childNode = null
@@ -50,7 +53,7 @@ export class Treelike {
       index = child
       childNode = this.childrenIndexs[index]
       name = childNode[name]
-    } else if (child instanceof Leaflike) {
+    } else if (child instanceof Leaflike || child instanceof Branchlike) {
       childNode = child
       if (childNode.name) {
         name = childNode.name
@@ -68,11 +71,11 @@ export class Treelike {
     childNode.parent = null
   }
 
-  public getChildByIndex(index:number):Leaflike {
+  public getChildByIndex(index:number):childlike {
     return this.childrenIndexs[index]
   }
 
-  public getChildByName(name:string):Leaflike {
+  public getChildByName(name:string):childlike {
     return this.getChildByIndex(this.childrenNames[name])
   }
 
@@ -91,7 +94,7 @@ interface LeafConfig {
 export class Leaflike {
   // name在PaperWing中是给用户用的
   public name:string = ''
-  public parent:Treelike
+  public parent:parentlike
   protected subscriber:Subscriber
 
   constructor({ name = '' }:LeafConfig) {
@@ -103,4 +106,19 @@ export class Leaflike {
   }
 }
 
+// 相比tree主干和leaf叶 ，它既有tree的特性，也有leaf的特性
+export class Branchlike extends Treelike {
+  public name:string = ''
+  public parent:parentlike
+  protected subscriber:Subscriber
+
+  constructor({ name = '' }:LeafConfig) {
+    super()
+    this.name = name
+  }
+
+  public setSubscriber(subscriber:Subscriber) {
+    this.subscriber = subscriber
+  }
+}
 // MultiParentLeafObject: 允许被多个父级元素共享的子元素

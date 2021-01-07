@@ -1,6 +1,10 @@
+// 常量
 export { constantValue } from './shader/constant'
-export { mixin } from './mixin'
-export { Treelike, Leaflike } from './abstract/TreeAndLeaf'
+// 用于混合还有继承的抽象类(有一些特殊用途的抽象类被放在了对应的文件中，没有收录在这里)
+export { Treelike, Leaflike, Branchlike, childlike, parentlike } from './abstract/TreeAndLeaf'
+export { SizeMixin, PositionMixin } from './abstract/Measure'
+// 断言
+export { isRenderable } from './assert/index'
 
 // 累加器
 export class Accumulator {
@@ -8,6 +12,19 @@ export class Accumulator {
   add():number {
     return this.index++
   }
+}
+
+// 将类混合进别的类的原型中
+export function mixin(derivedCtor: any, constructors: any[]) {
+  constructors.forEach((baseCtor) => {
+    Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
+      Object.defineProperty(
+        derivedCtor.prototype,
+        name,
+        Object.getOwnPropertyDescriptor(baseCtor.prototype, name)
+      )
+    })
+  })
 }
 
 // log工具

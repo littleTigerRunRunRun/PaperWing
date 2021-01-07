@@ -28,3 +28,10 @@ export type Length16Array = [
   number, number, number, number,
   number, number, number, number
 ]
+
+export type RGBAColorObject = {
+  r: number,
+  g: number,
+  b: number,
+  a: number
+}

@@ -2,7 +2,7 @@ import { BaseGeometry } from './BaseGeometry'
 import { PWPoint } from '@/common'
 
 export interface RectGeometryShapeConfig {
-  type: string
+  type?: string
   x?: number
   y?: number
   rotate?: number
@@ -13,20 +13,20 @@ export interface RectGeometryShapeConfig {
 
 // 矩形几何类型
 export class RectGeometry extends BaseGeometry {
-  public config:RectGeometryShapeConfig
+  public config:any
 
   constructor(config:RectGeometryShapeConfig) {
     super(config)
   }
 
-  public refreshConfig(config:RectGeometryShapeConfig) {
-    super.refreshConfig(config)
+  public _refreshConfig(config:RectGeometryShapeConfig) {
+    super._refreshConfig(config)
 
     if (!this.config) this.config = Object.assign({}, config)
     else Object.assign(this.config, config)
   }
 
-  public generatePoints() {
+  public _generatePoints() {
     const { width, height, stroke = 0 } = this.config
     this.stroke = stroke
 
