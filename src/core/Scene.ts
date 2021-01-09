@@ -1,15 +1,15 @@
 import { childlike, Treelike } from '../utils'
-import { mixin } from '../utils'
 import { Renderer } from './Renderer'
-import { RenderLoop, AnimationLoopStartOptions, RenderLoopCarrier } from './RenderLoop'
+import { RenderLoop, AnimationLoopStartOptions, GLParams, makeRenderLoopCarrier, RenderLoopCarrier } from './RenderLoop'
 import Subscriber from './Subscriber'
 import { Dictionary } from '@/common'
 import { Viewer } from '../viewer'
 
 interface SceneInitConifg {
-  canvas?: HTMLCanvasElement
-  stats?: boolean
-  options?: AnimationLoopStartOptions
+  canvas?:HTMLCanvasElement
+  stats?:boolean
+  options?:AnimationLoopStartOptions
+  glParams?:GLParams
 }
 // export interface ListenGL {
 //   get():GLContext
@@ -20,11 +20,9 @@ export interface RenderParams {
 }
 
 // 将RenderLoopCarrier这个扩展混合进Treelike
-class SceneTreelike extends Treelike {}
-interface SceneTreelike extends RenderLoopCarrier {}
-mixin(SceneTreelike, [RenderLoopCarrier])
-
-export class Scene extends SceneTreelike {
+export interface Scene extends RenderLoopCarrier {}
+@makeRenderLoopCarrier
+export class Scene extends Treelike {
   public canvas: HTMLCanvasElement
   public renderer:Renderer
   public viewer:Viewer
@@ -32,13 +30,15 @@ export class Scene extends SceneTreelike {
   public get is2() { return this.loop && this.loop.version === 2 }
   protected subscriber:Subscriber
   
-  constructor({ canvas, options = {}, stats = false }: SceneInitConifg) {
+  constructor({ canvas, options = {}, stats = false, glParams = {} }: SceneInitConifg) {
     super()
     
     this.canvas = canvas
     this.subscriber = new Subscriber()
+    this.subscriber.set('scene', this)
+    this.subscriber.set('itemId', 0)
 
-    this.loop = new RenderLoop({ canvas, subscriber: this.subscriber, options })
+    this.loop = new RenderLoop({ canvas, subscriber: this.subscriber, options, glParams })
 
     this.renderer = new Renderer({ scene: this, stats })
   }

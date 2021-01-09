@@ -2,7 +2,8 @@
 export { constantValue } from './shader/constant'
 // 用于混合还有继承的抽象类(有一些特殊用途的抽象类被放在了对应的文件中，没有收录在这里)
 export { Treelike, Leaflike, Branchlike, childlike, parentlike } from './abstract/TreeAndLeaf'
-export { SizeMixin, PositionMixin } from './abstract/Measure'
+// 装饰类
+export { GetSetNumber, GetSetHeight, GetSetWidth, GetSetX, GetSetY, GetSetRenderOrder } from './decorator/Number'
 // 断言
 export { isRenderable } from './assert/index'
 

@@ -1,4 +1,4 @@
-import { Leaflike, constantValue } from '../utils'
+import { Leaflike, constantValue } from '../utils' // GetSetNumber, GetSetRenderOrder
 import { getGeometry, GeometryType, GeometryConfig } from '../geometry/index'
 import { getMaterial, MaterialType, MaterialConfig } from '../material/index'
 import { GLContext, Length16Array } from '@/common'
@@ -16,17 +16,23 @@ interface ShapeConfig {
   stroke?:MaterialConfig
 }
 
+// export interface Shape extends GetSetRenderOrder {}
+
+// @GetSetNumber('renderOrder')
 export class Shape extends Leaflike {
+  public itemId:number
+
+  public gl:GLContext
   public geometry:GeometryType
+  public model:Model
+  
   public material:MaterialType
   public fill:MaterialType
   public stroke:MaterialType
-  public model:Model
   public fillModel:Model
   public strokeModel:Model
   public modelMatrix:Matrix4
-  public gl:GLContext
-  private geometryConfig:GeometryConfig
+
   private materialConfig:MaterialConfig
   private fillConfig:MaterialConfig
   private strokeConfig:MaterialConfig
@@ -46,34 +52,32 @@ export class Shape extends Leaflike {
     super({ name })
 
     this.visible = visible
-    this.geometryConfig = geometry
     this.materialConfig = material
     this.fillConfig = fill
     this.strokeConfig = stroke
+
+    this.geometry = getGeometry(geometry)
   }
 
   public setSubscriber(subscriber) {
     super.setSubscriber(subscriber)
-    
+    this.itemId = subscriber.get('itemId')
+    subscriber.set('itemId', this.itemId + 1)
+
     this.subscriber.once('getGl', this.getGl)
   }
 
   private getGl = (gl:GLContext) => {
     this.gl = gl
-    this.init(this.geometryConfig, this.materialConfig, this.fillConfig, this.strokeConfig)
+    this.init(this.materialConfig, this.fillConfig, this.strokeConfig)
   }
 
-  private init(geometry:GeometryConfig, material:MaterialConfig, fill:MaterialConfig, stroke:MaterialConfig) {
-    this.geometry = getGeometry(geometry)
+  private init(material:MaterialConfig, fill:MaterialConfig, stroke:MaterialConfig) {
     if (material) this.material = getMaterial(material)
     if (fill) this.fill = getMaterial(fill)
     if (stroke) this.stroke = getMaterial(stroke)
 
     const is2:boolean = (this.gl as any)._version === 2
-
-    setParameters(this.gl, {
-      blend: true
-    })
 
     if (this.material) {
       const receipt = this.material.getReceipt(is2)
@@ -118,6 +122,10 @@ export class Shape extends Leaflike {
   public render({ uniforms = {} }:RenderParams) {
     if (!this.visible) return
 
+    setParameters(this.gl, {
+      blend: true
+    })
+
     if (this.material) {
       Object.assign(uniforms, this.material.getUniforms())
       // console.log(uniforms)
@@ -146,12 +154,20 @@ export class Shape extends Leaflike {
     }
   }
 
-  public refreshGeometry(config:any) {
+  public refreshGeometry(config?:any) {
     if (!this.subscriber) {
       console.error('你不能在shape被添加为子元素前就调用refreshGeometry')
       return
     }
+
+    const scene = this.subscriber.get('scene');
+    (scene as any).addFrameCompute(`refreshGeometry_${this.itemId}`, { callback: this.geometry._refreshGeometry, params:[config] })
   }
+
+  // onRenderOrderChange(order:number) {
+  //   this.geometry.config.renderOrder = order
+  //   this.refreshGeometry()
+  // }
 
   private checkModelMatrix(model:Model) {
     if (this.geometry.matrixNeedRefresh) {

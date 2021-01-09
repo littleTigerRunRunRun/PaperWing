@@ -1,10 +1,9 @@
 import { BaseGroup } from './BaseGroup'
-import { mixin, SizeMixin, PositionMixin, isRenderable } from '../utils'
+import { GetSetNumber, GetSetHeight, GetSetWidth, GetSetX, GetSetY } from '../utils'
 import { Shape } from '../core/Shape'
 import { RGBAColorObject } from '@/common'
-import { times } from 'lodash'
 
-interface Container2DGroupConfig {
+export interface Container2DGroupConfig {
   name:string
   width:number
   height:number
@@ -17,11 +16,14 @@ interface ContainerHelperConfig {
   strokeWidth?:number
 }
 
-class MixinBaseGroup extends BaseGroup {}
-interface MixinBaseGroup extends SizeMixin, PositionMixin {}
-mixin(MixinBaseGroup, [SizeMixin, PositionMixin])
+// 相比起一般的BaseGroup仅仅传递render，组织内容，它还具备一个实际的区域范围，类似于html里面的常规布局 display: inline
+export interface Container2DGroup extends GetSetWidth, GetSetHeight, GetSetX, GetSetY {}
 
-export class Container2DGroup extends MixinBaseGroup {
+@GetSetNumber('width', 0)
+@GetSetNumber('height', 0)
+@GetSetNumber('x', 0)
+@GetSetNumber('y', 0)
+export class Container2DGroup extends BaseGroup {
   protected helperShape:Shape
 
   constructor({ name, width, height, helper = null }:Container2DGroupConfig) {
@@ -53,17 +55,19 @@ export class Container2DGroup extends MixinBaseGroup {
     console.log('x change')
   }
 
-  onWidthChange() {
+  onWidthChange(width:number) {
+    console.log('width change', width)
     if (this.helperShape) {
       this.helperShape.geometry.config.width = this._width
-      this.helperShape.geometry.refreshGeometry()
+      this.helperShape.refreshGeometry()
     }
   }
 
-  onHeightChange() {
+  onHeightChange(height:number) {
+    console.log('height change', height)
     if (this.helperShape) {
       this.helperShape.geometry.config.height = this._height
-      this.helperShape.geometry.refreshGeometry()
+      this.helperShape.refreshGeometry()
     }
   }
 }

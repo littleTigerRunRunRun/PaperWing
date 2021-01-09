@@ -8,6 +8,7 @@
       "@luma.gl/*": ["node_modules/@luma.gl/*"],
       "@/*": ["src/*"]
     },
+    "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node"
   },

@@ -18,6 +18,15 @@ export default class Subscriber implements PaperWingSubscriber {
   list:Dictionary<Array<any>> = {}
   onceList:Dictionary<Array<any>> = {}
   history:Dictionary<Array<any>> = {}
+  sets:Dictionary<any> = {}
+
+  public set(key:string, value:any) {
+    this.sets[key] = value
+  }
+
+  public get(key:string) {
+    return this.sets[key]
+  }
 
   public check() {
     // 调试时查看订阅情况
@@ -27,13 +36,13 @@ export default class Subscriber implements PaperWingSubscriber {
   }
   
   // 注册一种新类型的事件
-  register(eventName:string, useHistory?:boolean) {
+  public register(eventName:string, useHistory?:boolean) {
     if (!this.list[eventName]) this.list[eventName] = []
     if (!this.onceList[eventName]) this.onceList[eventName] = []
     if (!this.history[eventName] && useHistory) this.history[eventName] = []
   }
   
-  cancel(eventName:string) {
+  public cancel(eventName:string) {
     if (!this.list[eventName]) return
     this.list[eventName].splice(0, this.list[eventName].length)
     delete this.list[eventName]
@@ -42,7 +51,7 @@ export default class Subscriber implements PaperWingSubscriber {
   }
   
   // 参与监听一种事件
-  listen(eventName:string, callback:Function) {
+  public listen(eventName:string, callback:Function) {
     if (!this.list[eventName]) this.register(eventName)
     // if (readHistory) {
     //   // 如果需要在创建时阅读历史推送
@@ -53,10 +62,9 @@ export default class Subscriber implements PaperWingSubscriber {
     
     this.list[eventName].push(callback)
   }
-  
 
   // 与listen不同，是一次性的事件监听，即用即丢
-  once(eventName:string, callback:Function) {
+  public once(eventName:string, callback:Function) {
     if (this.history[eventName] && this.history[eventName].length > 0) {
       for (const item of this.history[eventName]) {
         callback.apply(this, item)
@@ -68,7 +76,7 @@ export default class Subscriber implements PaperWingSubscriber {
   }
   
   // 对某种事件广播信息
-  broadcast(eventName:string, ...argus:Array<any>) {
+  public broadcast(eventName:string, ...argus:Array<any>) {
     if (!this.list[eventName]) this.register(eventName)
     // 对listen类型的监听者广播
     if (this.list[eventName]) {
@@ -91,7 +99,7 @@ export default class Subscriber implements PaperWingSubscriber {
   // function cover(eventName)
   
   // 不建议remove掉once
-  remove(eventName:string, callback:Function) {
+  public remove(eventName:string, callback:Function) {
     if (!this.list[eventName]) return
     const li = this.list[eventName].indexOf(callback)
     if (li > -1) this.list[eventName].splice(li, 1)
@@ -101,7 +109,7 @@ export default class Subscriber implements PaperWingSubscriber {
     }
   }
   
-  clear() {
+  public clear() {
     for (const key in this.list) {
       this.list[key].splice(0, this.list[key].length)
       delete this.list[key]
@@ -111,11 +119,16 @@ export default class Subscriber implements PaperWingSubscriber {
       delete this.onceList[key]
     }
     for (const key in this.history) {
-      history[key].splice(0, this.history[key].length)
+      this.history[key].splice(0, this.history[key].length)
       delete this.history[key]
+    }
+    for (const key in this.sets) {
+      this.sets[key] = null
+      delete this.sets[key]
     }
     this.list = {}
     this.onceList = {}
     this.history = {}
+    this.sets = {}
   }
 }

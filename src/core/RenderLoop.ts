@@ -3,11 +3,13 @@ import { setParameters } from '@luma.gl/gltools'
 import GL from '@luma.gl/constants'
 import { Dictionary, GLContext } from '@/common'
 import Subscriber from './Subscriber'
+import { mixin } from '../utils'
 
 interface LoopConfig {
   canvas:HTMLCanvasElement,
   subscriber:Subscriber
   options?:AnimationLoopStartOptions
+  glParams?:GLParams
 }
 
 interface AnimationLoopInitializeArguments {
@@ -21,7 +23,7 @@ interface AnimationLoopRenderArguments {
 
 interface FrameCompute {
   callback:Function,
-  params?:Dictionary<any>,
+  params?:Array<any>,
   before?:boolean
 }
 
@@ -36,6 +38,10 @@ export interface AnimationLoopStartOptions {
   premultipliedAlpha?:boolean
   preserveDrawingBuffer?:boolean
   failIfMajorPerformanceCaveat?:boolean
+}
+
+export interface GLParams {
+  depth?:boolean
 }
 
 export class RenderLoopCarrier {
@@ -69,6 +75,11 @@ export class RenderLoopCarrier {
   }
 }
 
+export function makeRenderLoopCarrier<T extends {new(...args:any[]):{}}>(constructor:T) {
+  mixin(constructor, [RenderLoopCarrier])
+  return constructor
+}
+
 // Loop是整个渲染流程的tick控制器
 export class RenderLoop {
   public canvas:HTMLCanvasElement
@@ -81,25 +92,26 @@ export class RenderLoop {
   private frameComputes:Dictionary<FrameCompute> = {}
   private subscriber:Subscriber
   
-  constructor({ canvas, subscriber, options = {} }:LoopConfig) {
+  constructor({ canvas, subscriber, options = {}, glParams = {} }:LoopConfig) {
     this.canvas = canvas
     this.subscriber = subscriber
 
-    this.initLoop(options)
+    this.initLoop(options, glParams)
   }
 
-  private initLoop(options:AnimationLoopStartOptions) {
+  private initLoop(options:AnimationLoopStartOptions, glParams:GLParams) {
     // 注册事件
     this.subscriber.register('loopRender')
-    this.subscriber.register('getGl', true)  
+    this.subscriber.register('getGl', true)
 
     this.loop = new AnimationLoop({
       onInitialize: ({ gl }:AnimationLoopInitializeArguments) => {
         this.gl = gl
         this.subscriber.broadcast('getGl', gl)
         
+        const { depth = true } = glParams
         setParameters(gl, {
-          depthTest: true,
+          depthTest: depth,
           cull: true,
           cullFace: GL.BACK,
           blendFunc: [gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE]
