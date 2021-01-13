@@ -47,6 +47,23 @@ export class GetSetY {
   set y(y:number) {}
 }
 
+export interface GetSetSize extends GetSetWidth, GetSetHeight {}
+@GetSetNumber('width')
+@GetSetNumber('height')
+export class GetSetSize {}
+
+export interface GetSetPosition extends GetSetX, GetSetY {}
+@GetSetNumber('x')
+@GetSetNumber('y')
+export class GetSetPosition {}
+
+export interface GetSetBound extends GetSetX, GetSetY, GetSetWidth, GetSetHeight {}
+@GetSetNumber('width')
+@GetSetNumber('height')
+@GetSetNumber('x')
+@GetSetNumber('y')
+export class GetSetBound {}
+
 // 用于描述绘制顺序的抽象类
 export class GetSetRenderOrder {
   _renderOrder:number

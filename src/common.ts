@@ -35,3 +35,5 @@ export type RGBAColorObject = {
   b: number,
   a: number
 }
+
+export type Direction = 'v' | 'h'

@@ -24,7 +24,7 @@ export class Treelike {
   protected childrenNames:ChildNameGather = {}
 
   // 添加一个叶节点为子节点，倘若叶节点有name，这个name也会被存储
-  public add(child:childlike):number {
+  public add(child:childlike, ...restOfArgus:Array<any>):number {
     // 如果child本身已经有父元素了，需要移除
     if (child.parent) {
       if (child.parent === this) return // 父级就是自己，是重复添加，直接退出

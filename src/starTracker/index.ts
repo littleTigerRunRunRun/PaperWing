@@ -1,6 +1,6 @@
-import { Scene, Shape, Flex2DGroup } from '../index'
-import { RGBAColorObject, Dictionary } from '../common'
-import { GetSetNumber, GetSetWidth, GetSetHeight } from '../utils'
+import { Scene, Shape, Flex2DGroup, FlexParams, FlexItemConfig } from '../index'
+import { RGBAColorObject } from '../common'
+import { GetSetNumber, GetSetSize } from '../utils'
 
 const templates = []
 
@@ -37,7 +37,7 @@ const templates = []
 //       v: { basic: 20 }
 //     }
 //   ],
-//   squeeze: [
+//   flexs: [
 //     {
 //       items: [1, 2, 3],
 //       direction: 'h'
@@ -47,18 +47,12 @@ const templates = []
 
 type ItemType = 'rect' | 'line'
 
-interface StarTrackItemFlex {
-  grow?:number
-  shrink?:number
-  basic?:number
-}
-
 interface StarTrackItem {
-  id:number // 物件的唯一id
+  identity:number // 物件的唯一id
   type:ItemType
   fill:RGBAColorObject // 区域表示的颜色
-  h:StarTrackItemFlex
-  v:StarTrackItemFlex
+  h:FlexParams
+  v:FlexParams
 }
 
 export interface StarTrackConfig {
@@ -67,9 +61,10 @@ export interface StarTrackConfig {
   width:number // 初始容器宽
   height:number
   items:Array<StarTrackItem>
+  flexs:Array<FlexItemConfig>
 }
 
-export interface StarTrack extends GetSetHeight, GetSetWidth {}
+export interface StarTrack extends GetSetSize {}
 
 @GetSetNumber('width', 0)
 @GetSetNumber('height', 0)
@@ -78,14 +73,14 @@ export class StarTrack {
   public title:string
 
   public container:Flex2DGroup
-  protected itemsIndex:Dictionary<Shape> = {}
 
   constructor({
     name = '',
     title = '',
     width,
     height,
-    items
+    items,
+    flexs
   }:StarTrackConfig) {
     this.name = name
     this.title = title
@@ -94,6 +89,7 @@ export class StarTrack {
 
     this.createContainer(width, height)
     this.createItems(items)
+    this.container.addFlex(flexs)
   }
 
   protected createContainer(width:number, height:number) {
@@ -111,12 +107,12 @@ export class StarTrack {
   protected createItems(items:Array<StarTrackItem>) {
     for (const item of items) {
       const shape = new Shape({
-        name: `starItem_${item.id}`,
+        name: `starItem_${item.identity}`,
         geometry: { type: item.type, width: item.h.basic, height: item.v.basic },
         fill: Object.assign({ type: 'pure' }, item.fill)
       })
-      this.itemsIndex[item.id] = shape
       this.container.add(shape)
+      this.container.addFlexItem(shape, item)
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Leaflike, constantValue } from '../utils' // GetSetNumber, GetSetRenderOrder
+import { Leaflike, constantValue, GetSetNumber, GetSetBound } from '../utils' // , GetSetRenderOrder
 import { getGeometry, GeometryType, GeometryConfig } from '../geometry/index'
 import { getMaterial, MaterialType, MaterialConfig } from '../material/index'
 import { GLContext, Length16Array } from '@/common'
@@ -16,9 +16,12 @@ interface ShapeConfig {
   stroke?:MaterialConfig
 }
 
-// export interface Shape extends GetSetRenderOrder {}
+export interface Shape extends GetSetBound {}
 
-// @GetSetNumber('renderOrder')
+@GetSetNumber('x', 0)
+@GetSetNumber('y', 0)
+@GetSetNumber('width', 0)
+@GetSetNumber('height', 0)
 export class Shape extends Leaflike {
   public itemId:number
 
@@ -37,10 +40,6 @@ export class Shape extends Leaflike {
   private fillConfig:MaterialConfig
   private strokeConfig:MaterialConfig
 
-  public set x(x:number) { this.geometry.x = x }
-  public get x():number { return this.geometry.x }
-  public set y(y:number) { this.geometry.y = y }
-  public get y():number { return this.geometry.y }
   public set rotate(rotate:number) { this.geometry.rotate = rotate }
   public get rotate():number { return this.geometry.rotate }
   
@@ -57,6 +56,8 @@ export class Shape extends Leaflike {
     this.strokeConfig = stroke
 
     this.geometry = getGeometry(geometry)
+    this.width = this.geometry.width
+    this.height = this.geometry.height
   }
 
   public setSubscriber(subscriber) {
@@ -118,6 +119,7 @@ export class Shape extends Leaflike {
     }
   }
   
+  private lastFrameGeometryChange:boolean = false
   // give uniforms
   public render({ uniforms = {} }:RenderParams) {
     if (!this.visible) return
@@ -125,17 +127,31 @@ export class Shape extends Leaflike {
     setParameters(this.gl, {
       blend: true
     })
+    
+    let needRefresh = this.lastFrameGeometryChange
+    this.lastFrameGeometryChange = false
+    if (this.geometry.geometryNeedRefresh) {
+      this.geometry.geometryNeedRefresh = false
+      this.lastFrameGeometryChange = true
+      this.refreshGeometry()
+    }
 
     if (this.material) {
+      if (needRefresh) this.strokeModel.setGeometry(this.geometry.geometry)
+
       Object.assign(uniforms, this.material.getUniforms())
       // console.log(uniforms)
       for (const key in uniforms) {
-        (this.model as any).uniforms[key] =uniforms[key]
+        (this.model as any).uniforms[key] = uniforms[key]
       }
       this.checkModelMatrix(this.model)
       this.model.draw()
     }
     if (this.fill) {
+      if (needRefresh) {
+        this.fillModel.setGeometry(this.geometry.geometry)
+      }
+      
       const fillUniforms = Object.assign({}, uniforms, this.fill.getUniforms())
       Object.assign({}, uniforms, this.fill.getUniforms())
       for (const key in fillUniforms) {
@@ -145,6 +161,10 @@ export class Shape extends Leaflike {
       this.fillModel.draw()
     }
     if (this.stroke) {
+      if (needRefresh) {
+        this.strokeModel.setGeometry(this.geometry.strokeGeometry)
+      }
+
       const strokeUniforms = Object.assign({}, uniforms, this.stroke.getUniforms())
       for (const key in strokeUniforms) {
         (this.strokeModel as any).uniforms[key] = strokeUniforms[key]
@@ -161,7 +181,7 @@ export class Shape extends Leaflike {
     }
 
     const scene = this.subscriber.get('scene');
-    (scene as any).addFrameCompute(`refreshGeometry_${this.itemId}`, { callback: this.geometry._refreshGeometry, params:[config] })
+    (scene as any).addFrameCompute(`refreshGeometry_${this.itemId}`, { callback: this.geometry._refreshGeometry, before: true, params:[config] })
   }
 
   // onRenderOrderChange(order:number) {
@@ -169,12 +189,28 @@ export class Shape extends Leaflike {
   //   this.refreshGeometry()
   // }
 
+  onWidthChange(width:number) {
+    this.geometry.width = width
+  }
+
+  onHeightChange(height:number) {
+    this.geometry.height = height
+  }
+
+  onXChange(x:number) {
+    this.geometry.x = x
+  }
+
+  onYChange(y:number) {
+    this.geometry.y = y
+  }
+
   private checkModelMatrix(model:Model) {
     if (this.geometry.matrixNeedRefresh) {
       const ax = 0.5 // anchor x
       const ay = 0.5
-      const w = this.geometry.bound.width
-      const h = this.geometry.bound.height
+      const w = this.geometry.width
+      const h = this.geometry.height
       const sx = 1 // scale x
       const sy = 1
       const sina = Math.sin(this.geometry.rotate)

@@ -60,8 +60,19 @@ function main(canvas: HTMLCanvasElement) {
   
   const st = new StarTrack(rectStarTrack)
   scene.add(st.container)
+  console.log(st.container)
+  
+  // const rect1 = new Shape({
+  //   name: 'rect1',
+  //   geometry: { type: 'rect', width: 100, height: 200 },
+  //   fill: { type: 'pure', r: 1, g: 0, b: 0.4, a: 0.8 }
+  // })
+  // scene.add(rect1)
+  // console.log(rect1)
 
   scene.tick(({ time }) => {
+    st.container.width = 300 + Math.sin(time * 0.0005 + Math.PI * 0.5) * 100
+    
     // rect1.x = Math.sin(time * 0.002 + Math.PI * 0.5) * 200
     // rect1.y = Math.sin(time * 0.002 + Math.PI * 0.5) * 200
     // rect1.rotate = time * 0.002
@@ -79,7 +90,7 @@ const rectStarTrack:StarTrackConfig = {
   height: 240,
   items: [
     {
-      id: 1,
+      identity: 1,
       // 描述了这段路径的视觉容器（内部的话还需要路径位置展示）
       type: 'rect',
       // 描述了颜色
@@ -89,25 +100,27 @@ const rectStarTrack:StarTrackConfig = {
       v: { basic: 40 }
     },
     {
-      id: 2,
+      identity: 2,
       type: 'rect',
       fill: { r: 1, g: 0.5, b: 0.4, a: 0.4 },
       h: { grow: 1, shrink: 1, basic: 20 },
       v: { grow: 1, shrink: 1, basic: 20 }
     },
     {
-      id: 3,
+      identity: 3,
       type: 'rect',
       fill: { r: 1, g: 1, b: 1, a: 0.4 },
       // 默认的grow和shrink就是0
       h: { grow: 0, shrink: 0, basic: 40 },
       v: { basic: 40 }
     }
+  ],
+  // squeeze的放置顺序代表了执行顺序
+  flexs: [
+    {
+      // id: ,
+      direction: 'h',
+      items: [1, 2, 3]
+    }
   ]
-  // squeeze: [
-  //   {
-  //     items: [1, 2, 3],
-  //     direction: 'h'
-  //   }
-  // ]
 }

@@ -11,6 +11,7 @@ interface SceneInitConifg {
   options?:AnimationLoopStartOptions
   glParams?:GLParams
 }
+
 // export interface ListenGL {
 //   get():GLContext
 // }

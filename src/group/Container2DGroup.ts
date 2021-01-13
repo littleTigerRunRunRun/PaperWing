@@ -1,5 +1,5 @@
 import { BaseGroup } from './BaseGroup'
-import { GetSetNumber, GetSetHeight, GetSetWidth, GetSetX, GetSetY } from '../utils'
+import { GetSetNumber, GetSetBound } from '../utils'
 import { Shape } from '../core/Shape'
 import { RGBAColorObject } from '@/common'
 
@@ -17,7 +17,7 @@ interface ContainerHelperConfig {
 }
 
 // 相比起一般的BaseGroup仅仅传递render，组织内容，它还具备一个实际的区域范围，类似于html里面的常规布局 display: inline
-export interface Container2DGroup extends GetSetWidth, GetSetHeight, GetSetX, GetSetY {}
+export interface Container2DGroup extends GetSetBound {}
 
 @GetSetNumber('width', 0)
 @GetSetNumber('height', 0)
@@ -56,18 +56,14 @@ export class Container2DGroup extends BaseGroup {
   }
 
   onWidthChange(width:number) {
-    console.log('width change', width)
     if (this.helperShape) {
-      this.helperShape.geometry.config.width = this._width
-      this.helperShape.refreshGeometry()
+      this.helperShape.width = width
     }
   }
 
   onHeightChange(height:number) {
-    console.log('height change', height)
     if (this.helperShape) {
-      this.helperShape.geometry.config.height = this._height
-      this.helperShape.refreshGeometry()
+      this.helperShape.height = height
     }
   }
 }

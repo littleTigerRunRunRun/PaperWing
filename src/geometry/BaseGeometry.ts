@@ -1,6 +1,7 @@
 import { PWPoint } from '@/common'
 import { Vector2 } from 'math.gl'
 import { Geometry } from '@luma.gl/engine'
+import { GetSetBound, GetSetNumber, GetSetSize } from '../utils'
 
 // 用于给各种Geometry实现用的接口
 export interface GeometryStandard {
@@ -51,7 +52,12 @@ class LumaGeometry extends Geometry {
   }
 }
 
+export interface BaseGeometry extends GetSetBound {}
 // 几何类型的基类
+@GetSetNumber('width')
+@GetSetNumber('height')
+@GetSetNumber('x')
+@GetSetNumber('y')
 export class BaseGeometry implements GeometryStandard {
   protected dimension:number
   public length:number = 0
@@ -63,26 +69,13 @@ export class BaseGeometry implements GeometryStandard {
   public stroke:number = 0
   public strokePoints:Array<PWPoint> = []
   public strokeIndices:Array<number> = []
-  public bound:Bound
   public config:any
   
   public matrixNeedRefresh:boolean = true
+  public geometryNeedRefresh:boolean = false
 
-  // translate
-  protected _x:number = 0
-  protected _y:number = 0
-  public get x():number { return this._x }
-  public set x(x:number) {
-    if (x === undefined || this._x === x) return
-    this._x = x
-    this.matrixNeedRefresh = true
-  }
-  public get y():number { return this._y }
-  public set y(y:number) {
-    if (y === undefined || this._y === y) return
-    this._y = y
-    this.matrixNeedRefresh = true
-  }
+  onXChange() { this.matrixNeedRefresh = true }
+  onYChange() { this.matrixNeedRefresh = true }
 
   // rotate
   protected _rotate:number = 0
@@ -108,12 +101,14 @@ export class BaseGeometry implements GeometryStandard {
     this.rotate = config.rotate || 0
   }
 
-  public _refreshGeometry(config?:any) {
+  public _refreshGeometry = (config?:any) => {
     if (!config) config = this.config
     this._refreshConfig(config)
 
     // 将输入的参数转化成点
-    this.bound = this._generatePoints()
+    const { width, height } = this._generatePoints()
+    this.width = width
+    this.height = height
 
     // 计算法向量
     this.computeClosedNormals()
@@ -130,6 +125,8 @@ export class BaseGeometry implements GeometryStandard {
 
   // 求出闭合图形每个点的法向量
   protected computeClosedNormals() {
+    this.normals.splice(0, this.normals.length)
+
     for (let i = 0; i < this.points.length; i++) {
       const nextPoint = this.points[i + 1] ? this.points[i + 1] : this.points[0]
       const prevPoint = this.points[i - 1] ? this.points[i - 1] : this.points[this.points.length - 1]
@@ -147,6 +144,7 @@ export class BaseGeometry implements GeometryStandard {
     this.points.forEach((point) => positions.push(...[point.x, point.y, point.z, point.w]))
 
     const normals = []
+    // console.log(this.points, this.normals)
     this.normals.forEach((normal, index) => normals.push(...[normal.x, normal.y, this.points[index].z]))
 
     if (!this.geometry) this.geometry = new LumaGeometry({ positions, normals, indices: this.indices })
@@ -160,7 +158,9 @@ export class BaseGeometry implements GeometryStandard {
       this.normals.forEach((normal, index) => strokeNormals.push(...[normal.x, normal.y, this.points[index].z]))
       this.normals.forEach((normal, index) => strokeNormals.push(...[normal.x, normal.y, this.points[index].z]))
 
-      if (!this.strokeGeometry) this.strokeGeometry = new LumaGeometry({ positions: strokePositions, normals: strokeNormals, indices: this.strokeIndices })
+      this.strokeGeometry = new LumaGeometry({ positions: strokePositions, normals: strokeNormals, indices: this.strokeIndices })
+      // if (!this.strokeGeometry) this.strokeGeometry = new LumaGeometry({ positions: strokePositions, normals: strokeNormals, indices: this.strokeIndices })
+      // else this.strokeGeometry.rebuild({ positions: strokePositions, normals: strokeNormals, indices: this.strokeIndices })
     }
   }
 
@@ -188,6 +188,7 @@ export class BaseGeometry implements GeometryStandard {
   public _strokeFragmentate() {
     // 根据normal修正
     this.strokePoints.splice(0, this.strokePoints.length)
+    this.strokeIndices.splice(0, this.strokeIndices.length)
 
     for (let i = 0;i < this.points.length; i++) {
       const offsetVector = this.normals[i].clone().multiplyScalar(this.stroke * -0.5)

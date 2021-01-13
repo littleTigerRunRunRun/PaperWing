@@ -19,8 +19,21 @@ export class RectGeometry extends BaseGeometry {
     super(config)
   }
 
+  public onWidthChange(width:number) {
+    this.config.width = width
+    this.geometryNeedRefresh = true
+  }
+
+  public onHeightChange(height:number) {
+    this.config.height = height
+    this.geometryNeedRefresh = true
+  }
+
   public _refreshConfig(config:RectGeometryShapeConfig) {
     super._refreshConfig(config)
+
+    this._width = config.width
+    this._height = config.height
 
     if (!this.config) this.config = Object.assign({}, config)
     else Object.assign(this.config, config)
@@ -38,6 +51,6 @@ export class RectGeometry extends BaseGeometry {
     this.length = width * 2 + height * 2
     this.points.splice(0, this.points.length, p1, p2, p3, p4)
 
-    return { width: width + stroke, height: height + stroke }
+    return { width, height }
   }
 }

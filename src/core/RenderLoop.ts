@@ -124,7 +124,11 @@ export class RenderLoop {
         // 前帧计算的响应
         for (const key in this.frameComputes) {
           const { before, callback, params } = this.frameComputes[key]
-          if (before) callback.apply(this, params)
+          if (before) {
+            callback.apply(this, params)
+            this.frameComputes[key] = null
+            delete this.frameComputes[key]
+          }
         }
 
         this.subscriber.broadcast('loopRender', { time })
@@ -132,7 +136,11 @@ export class RenderLoop {
         // 后帧计算的响应
         for (const key in this.frameComputes) {
           const { before, callback, params } = this.frameComputes[key]
-          if (!before) callback.apply(this, params)
+          if (!before) {
+            callback.apply(this, params)
+            this.frameComputes[key] = null
+            delete this.frameComputes[key]
+          }
         }
       },
       // autoResizeViewport: false
