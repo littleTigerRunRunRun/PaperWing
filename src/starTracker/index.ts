@@ -49,6 +49,7 @@ type ItemType = 'rect' | 'line'
 
 interface StarTrackItem {
   identity:number // 物件的唯一id
+  desc?:string // 数据里的描述文本
   type:ItemType
   fill:RGBAColorObject // 区域表示的颜色
   h:FlexParams

@@ -119,7 +119,6 @@ export class Shape extends Leaflike {
     }
   }
   
-  private lastFrameGeometryChange:boolean = false
   // give uniforms
   public render({ uniforms = {} }:RenderParams) {
     if (!this.visible) return
@@ -127,17 +126,11 @@ export class Shape extends Leaflike {
     setParameters(this.gl, {
       blend: true
     })
-    
-    let needRefresh = this.lastFrameGeometryChange
-    this.lastFrameGeometryChange = false
-    if (this.geometry.geometryNeedRefresh) {
-      this.geometry.geometryNeedRefresh = false
-      this.lastFrameGeometryChange = true
-      this.refreshGeometry()
-    }
+
+    if (this.geometry.geometryNeedRefresh) this.geometry._refreshGeometry()
 
     if (this.material) {
-      if (needRefresh) this.strokeModel.setGeometry(this.geometry.geometry)
+      if (this.geometry.geometryNeedRefresh) this.strokeModel.setGeometry(this.geometry.geometry)
 
       Object.assign(uniforms, this.material.getUniforms())
       // console.log(uniforms)
@@ -148,7 +141,7 @@ export class Shape extends Leaflike {
       this.model.draw()
     }
     if (this.fill) {
-      if (needRefresh) {
+      if (this.geometry.geometryNeedRefresh) {
         this.fillModel.setGeometry(this.geometry.geometry)
       }
       
@@ -161,7 +154,7 @@ export class Shape extends Leaflike {
       this.fillModel.draw()
     }
     if (this.stroke) {
-      if (needRefresh) {
+      if (this.geometry.geometryNeedRefresh) {
         this.strokeModel.setGeometry(this.geometry.strokeGeometry)
       }
 
@@ -172,6 +165,8 @@ export class Shape extends Leaflike {
       this.checkModelMatrix(this.strokeModel)
       this.strokeModel.draw()
     }
+
+    this.geometry.geometryNeedRefresh = false
   }
 
   public refreshGeometry(config?:any) {

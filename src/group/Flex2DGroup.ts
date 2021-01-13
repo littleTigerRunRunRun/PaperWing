@@ -27,6 +27,7 @@ export interface FlexItemConfig {
 }
 
 interface FlexTarget {
+  identity:number
   target:GetSetSize
   v:FlexParams
   h:FlexParams
@@ -42,7 +43,7 @@ interface FlexItem extends GetSetSize {}
 @GetSetNumber('height', 0)
 // 具备id的flex关系群会作为一个虚拟item参与后后续的布局计算中，当然了这样的flex关系也要有自己的StarTrackItemFlex
 class FlexItem {
-  protected identity:number
+  public identity:number
   protected direction:Direction
   protected group:Flex2DGroup
   protected children:Array<FlexTarget> = []
@@ -62,33 +63,61 @@ class FlexItem {
     }
   }
 
-  public deliverBound(width:number, height:number) {
+  public deliverBound() {
+    const width = this.width
+    const height = this.height
+
+    let basic = 0
+    let grow = 0
+    let shrink = 0
     if (this.direction === 'v') {
-      console.log(height)
+      for (const child of this.children) {
+        basic += child.v.basic
+        grow += child.v.grow
+        shrink += child.v.shrink
+      }
+      if (basic > height) {
+
+      } else {
+        let y = this.y + height * -0.5
+        for (const child of this.children) {
+          // console.log(child.target, child.h.basic + 0)
+          child.target.height = child.v.basic + (height - basic) * child.v.grow / (grow || 1)
+          child.target.y = y + child.target.height * 0.5
+          y += child.target.height
+          
+          child.target.width = this.width
+          child.target.x = this.x
+        }
+      }
     } else {
-      let basic = 0
-      let grow = 0
-      let shrink = 0
       for (const child of this.children) {
         // console.log(child.h)
-        basic += child.h.basic || 0
-        grow += child.h.grow || 0
-        shrink += child.h.shrink || 0
+        basic += child.h.basic
+        grow += child.h.grow
+        shrink += child.h.shrink
       }
       if (basic > width) {
-        for (const child of this.children) {
-          console.log(child.target, child.h.basic + 0)
-          child.target.width = child.h.basic + 0
-        }
+        // for (const child of this.children) {
+        //   console.log(child.target, child.h.basic + 0)
+        //   child.target.width = child.h.basic + 0
+        // }
       } else {
-        let x = width * -0.5
+        let x = this.x + width * -0.5
         for (const child of this.children) {
           // console.log(child.target, child.h.basic + 0)
           child.target.width = child.h.basic + (width - basic) * child.h.grow / (grow || 1)
           child.target.x = x + child.target.width * 0.5
           x += child.target.width
+
+          child.target.height = this.height
+          child.target.y = this.y
         }
       }
+    }
+
+    for (const child of this.children) {
+      if (child.target instanceof FlexItem) child.target.deliverBound()
     }
   }
 }
@@ -103,11 +132,6 @@ export class Flex2DGroup extends Container2DGroup {
   }
 
   public render(...argus:Array<any>) {
-    // 做flex计算
-    for (const flexItem of this.flexItems) {
-      flexItem.deliverBound(this.width, this.height)
-    }
-
     // 传递render指令
     for (const child of this.children) {
       if (isRenderable(child)) {
@@ -127,7 +151,14 @@ export class Flex2DGroup extends Container2DGroup {
 
   public addFlexItem(flexItem:GetSetSize, config:ChildFlexConfig) {
     if (this.itemsIndex[config.identity]) console.warn(`重复的itemId:${config.identity}`, this, this.itemsIndex[config.identity], flexItem)
+
+    config.v.grow = config.v.grow || 0
+    config.v.shrink = config.v.shrink || 0
+    config.h.grow = config.h.grow || 0
+    config.h.shrink = config.h.shrink || 0
+
     this.itemsIndex[config.identity] = {
+      identity: config.identity,
       target: flexItem,
       v: config.v,
       h: config.h
@@ -140,9 +171,40 @@ export class Flex2DGroup extends Container2DGroup {
 
   // 你可以认为是css flex布局类似的概念，区别在于容器里可以包含多层flex关系
   public addFlex(flexs:Array<FlexItemConfig>) {
-    for (const flex of flexs) {
+    const withIdentityFlexs = flexs.filter((flex) => flex.identity !== undefined)
+    const widthoutIdentityFlexs = flexs.filter((flex) => flex.identity === undefined)
+    // 从flexs关系中抽出组放到itemsIndex索引中
+    for (const flex of withIdentityFlexs) {
       const flexItem = new FlexItem(flex, this)
+    }
+    // 添加属于根节点的flex关系
+    for (const flex of widthoutIdentityFlexs) {
+      const flexItem = new FlexItem(flex, this)
+      flexItem.width = this.width
+      flexItem.height = this.height
       this.flexItems.push(flexItem)
+    }
+  }
+
+  onWidthChange(width:number) {
+    super.onWidthChange(width)
+
+    if (!this.flexItems) return
+    // 做flex计算
+    for (const flexItem of this.flexItems) {
+      flexItem.width = this.width
+      flexItem.deliverBound()
+    }
+  }
+
+  onHeightChange(height:number) {
+    super.onHeightChange(height)
+
+    if (!this.flexItems) return
+    // 做flex计算
+    for (const flexItem of this.flexItems) {
+      flexItem.height = this.height
+      flexItem.deliverBound()
     }
   }
 }

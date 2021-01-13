@@ -61,6 +61,7 @@ function main(canvas: HTMLCanvasElement) {
   const st = new StarTrack(rectStarTrack)
   scene.add(st.container)
   console.log(st.container)
+  st.container.width = 300
   
   // const rect1 = new Shape({
   //   name: 'rect1',
@@ -71,7 +72,7 @@ function main(canvas: HTMLCanvasElement) {
   // console.log(rect1)
 
   scene.tick(({ time }) => {
-    st.container.width = 300 + Math.sin(time * 0.0005 + Math.PI * 0.5) * 100
+    // st.container.width = 300 + Math.sin(time * 0.002 + Math.PI * 0.5) * 100
     
     // rect1.x = Math.sin(time * 0.002 + Math.PI * 0.5) * 200
     // rect1.y = Math.sin(time * 0.002 + Math.PI * 0.5) * 200
@@ -83,6 +84,8 @@ function main(canvas: HTMLCanvasElement) {
   createGUI()
 }
 
+const white = { r: 1, g: 1, b: 1, a: 0.4 }
+const red = { r: 1, g: 0.5, b: 0.4, a: 0.4 }
 const rectStarTrack:StarTrackConfig = {
   name: '', // 这个不必要
   title: '四方型边框',
@@ -91,36 +94,51 @@ const rectStarTrack:StarTrackConfig = {
   items: [
     {
       identity: 1,
+      desc: '左上角的转角块',
       // 描述了这段路径的视觉容器（内部的话还需要路径位置展示）
       type: 'rect',
       // 描述了颜色
-      fill: { r: 1, g: 1, b: 1, a: 0.4 },
+      fill: white,
        // 默认的grow和shrink就是0
       h: { grow: 0, shrink: 0, basic: 40 },
       v: { basic: 40 }
     },
     {
       identity: 2,
+      desc: '上侧中间的可伸缩部分',
       type: 'rect',
-      fill: { r: 1, g: 0.5, b: 0.4, a: 0.4 },
+      fill: red,
       h: { grow: 1, shrink: 1, basic: 20 },
       v: { grow: 1, shrink: 1, basic: 20 }
     },
+    { identity: 3, desc: '右上角的转角块', type: 'rect', fill: white, h: { basic: 40 }, v: { basic: 40 } },
+    { identity: 4, desc: '左下角的转角块', type: 'rect', fill: white, h: { basic: 40 }, v: { basic: 40} },
     {
-      identity: 3,
+      identity: 5,
+      desc: '下侧中间的可伸缩部分',
       type: 'rect',
-      fill: { r: 1, g: 1, b: 1, a: 0.4 },
-      // 默认的grow和shrink就是0
-      h: { grow: 0, shrink: 0, basic: 40 },
-      v: { basic: 40 }
-    }
+      fill: red,
+      h: { grow: 1, shrink: 1, basic: 20 },
+      v: { grow: 1, shrink: 1, basic: 20 }
+    },
+    { identity: 6, desc: '右下角的转角块', type: 'rect', fill: white, h: { basic: 40 }, v: { basic: 40} }
   ],
   // squeeze的放置顺序代表了执行顺序
   flexs: [
+    { direction: 'v', items: [7, 8] },
     {
-      // id: ,
+      identity: 7,
       direction: 'h',
-      items: [1, 2, 3]
+      items: [1, 2, 3],
+      h: { grow: 1, basic:80 },
+      v: { basic: 40 }
+    },
+    { 
+      identity: 8,
+      direction: 'h',
+      items: [4, 5, 6],
+      h: { grow: 1, basic:80 },
+      v: { basic: 40 }
     }
   ]
 }

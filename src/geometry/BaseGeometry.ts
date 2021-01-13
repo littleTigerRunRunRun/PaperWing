@@ -96,8 +96,8 @@ export class BaseGeometry implements GeometryStandard {
 
   // 传入config然后赋值
   public _refreshConfig(config:any) {
-    this.x = config.x || 0
-    this.y = config.y || 0
+    // this.x = config.x
+    // this.y = config.y
     this.rotate = config.rotate || 0
   }
 
