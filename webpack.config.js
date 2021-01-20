@@ -3,6 +3,7 @@ const webpack = require('webpack')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
+const CopyPlugin = require("copy-webpack-plugin")
  
 const HOST = 'localhost'
 const PORT = 8080
@@ -25,8 +26,8 @@ module.exports = {
     // new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       title: '模块热替换',
-      template: './public/index.html',
-      favicon: './public/favicon.ico'
+      template: './index.html',
+      favicon: './favicon.ico'
     }),
     // new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
@@ -36,7 +37,12 @@ module.exports = {
         // notes: ['Some additional notes to be displayed upon successful compilation'],
         clearConsole: true
       },
-    })
+    }),
+    new CopyPlugin([
+      {
+        from: path.resolve(__dirname, 'public')
+      }
+    ])
   ],
  
   devServer: {

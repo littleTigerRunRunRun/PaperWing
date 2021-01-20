@@ -30,10 +30,17 @@ export type Length16Array = [
 ]
 
 export type RGBAColorObject = {
-  r: number,
-  g: number,
-  b: number,
-  a: number
+  r:number,
+  g:number,
+  b:number,
+  a:number
 }
 
 export type Direction = 'v' | 'h'
+
+export interface Orientation {
+  left?:number
+  right?:number
+  top?:number
+  bottom?:number
+}

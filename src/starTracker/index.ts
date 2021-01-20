@@ -1,5 +1,5 @@
 import { Scene, Shape, Flex2DGroup, FlexParams, FlexItemConfig } from '../index'
-import { RGBAColorObject } from '../common'
+import { RGBAColorObject, Orientation } from '../common'
 import { GetSetNumber, GetSetSize } from '../utils'
 
 const templates = []
@@ -51,9 +51,10 @@ interface StarTrackItem {
   identity:number // 物件的唯一id
   desc?:string // 数据里的描述文本
   type:ItemType
-  fill:RGBAColorObject // 区域表示的颜色
+  fill?:RGBAColorObject // 区域表示的颜色
   h:FlexParams
   v:FlexParams
+  extends?:Orientation
 }
 
 export interface StarTrackConfig {
@@ -74,6 +75,16 @@ export class StarTrack {
   public title:string
 
   public container:Flex2DGroup
+
+  public assets = {
+    corner: {
+      1: '1.png'
+    },
+    line: {
+      dot: 'dot.png',
+      normal: 'normal.png'
+    }
+  }
 
   constructor({
     name = '',
@@ -98,10 +109,10 @@ export class StarTrack {
       name: 'container',
       width,
       height,
-      helper: {
-        stroke: { r: 1, g: 1, b: 1, a: 0.4 },
-        strokeWidth: 4
-      }
+      // helper: {
+      //   stroke: { r: 1, g: 1, b: 1, a: 0.4 },
+      //   strokeWidth: 4
+      // }
     })
   }
 

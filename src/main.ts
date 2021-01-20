@@ -19,8 +19,8 @@ declare global {
 }
 
 const defaultData = {
-  width: 400,
-  height: 240
+  width: 600,
+  height: 360
 }
 const handlers:any = {}
 const controlls:any = {}
@@ -36,12 +36,12 @@ function createGUI() {
   const containerSize = gui.addFolder('container size')
   containerSize.open()
 
-  controlls.width = containerSize.add(defaultData, 'width')
+  // controlls.width = containerSize.add(defaultData, 'width')
   // controlls.width.onChange((width) => {
   //   handlers.group.width = width
   // })
 
-  controlls.height = containerSize.add(defaultData, 'height')
+  // controlls.height = containerSize.add(defaultData, 'height')
   // controlls.height.onChange((height) => {
   //   handlers.group.height = height
   // })
@@ -58,21 +58,23 @@ function main(canvas: HTMLCanvasElement) {
   scene.viewer= viewer
   const viewMatrix = viewer.viewMatrix
   
-  const st = new StarTrack(rectStarTrack)
-  scene.add(st.container)
-  console.log(st.container)
-  st.container.width = 300
+  // const st = new StarTrack(rectStarTrack)
+  // scene.add(st.container)
+  // console.log(st.container)
+  // st.container.width = 300
   
-  // const rect1 = new Shape({
-  //   name: 'rect1',
-  //   geometry: { type: 'rect', width: 100, height: 200 },
-  //   fill: { type: 'pure', r: 1, g: 0, b: 0.4, a: 0.8 }
-  // })
-  // scene.add(rect1)
-  // console.log(rect1)
+  const rect1 = new Shape({
+    name: 'rect1',
+    geometry: { type: 'rect', width: 200, height: 200 },
+    // fill: { type: 'pure', r: 1, g: 0, b: 0.4, a: 0.8 }
+    material: { type: 'standard' }
+  })
+  scene.add(rect1)
+  console.log(rect1)
 
   scene.tick(({ time }) => {
-    // st.container.width = 300 + Math.sin(time * 0.002 + Math.PI * 0.5) * 100
+    // st.container.width = 600 + Math.sin(time * 0.002 + Math.PI * 0.5) * 100
+    // st.container.height = 360 + Math.cos(time * 0.002 + Math.PI * 0.5) * 40
     
     // rect1.x = Math.sin(time * 0.002 + Math.PI * 0.5) * 200
     // rect1.y = Math.sin(time * 0.002 + Math.PI * 0.5) * 200
@@ -89,8 +91,8 @@ const red = { r: 1, g: 0.5, b: 0.4, a: 0.4 }
 const rectStarTrack:StarTrackConfig = {
   name: '', // 这个不必要
   title: '四方型边框',
-  width: 400,
-  height: 240,
+  width: 600,
+  height: 360,
   items: [
     {
       identity: 1,
@@ -103,42 +105,49 @@ const rectStarTrack:StarTrackConfig = {
       h: { grow: 0, shrink: 0, basic: 40 },
       v: { basic: 40 }
     },
-    {
-      identity: 2,
-      desc: '上侧中间的可伸缩部分',
-      type: 'rect',
-      fill: red,
-      h: { grow: 1, shrink: 1, basic: 20 },
-      v: { grow: 1, shrink: 1, basic: 20 }
-    },
+    { identity: 2, desc: '上侧中间的可伸缩部分', type: 'rect', fill: red, h: { basic: 20, grow: 1, shrink: 1 }, v: { basic: 20, grow: 1, shrink: 1 } },
     { identity: 3, desc: '右上角的转角块', type: 'rect', fill: white, h: { basic: 40 }, v: { basic: 40 } },
     { identity: 4, desc: '左下角的转角块', type: 'rect', fill: white, h: { basic: 40 }, v: { basic: 40} },
-    {
-      identity: 5,
-      desc: '下侧中间的可伸缩部分',
-      type: 'rect',
-      fill: red,
-      h: { grow: 1, shrink: 1, basic: 20 },
-      v: { grow: 1, shrink: 1, basic: 20 }
-    },
-    { identity: 6, desc: '右下角的转角块', type: 'rect', fill: white, h: { basic: 40 }, v: { basic: 40} }
+    { identity: 5, desc: '下侧中间的可伸缩部分', type: 'rect', fill: red, h: { basic: 20, grow: 1, shrink: 1 }, v: { basic: 20, grow: 1, shrink: 1 } },
+    { identity: 6, desc: '右下角的转角块', type: 'rect', fill: white, h: { basic: 40 }, v: { basic: 40} },
+    { identity: 9, desc: '左侧的可伸缩部分', type: 'rect', fill: red, h: { basic: 20, grow: 1, shrink: 1 }, v: { basic: 20, grow: 1, shrink: 1 } },
+    { identity: 10, desc: '右侧的可伸缩部分', type: 'rect', fill: red, h: { basic: 20, grow: 1, shrink: 1 }, v: { basic: 20, grow: 1, shrink: 1 } }
   ],
   // squeeze的放置顺序代表了执行顺序
   flexs: [
-    { direction: 'v', items: [7, 8] },
+    { direction: 'v', items: [7, 8], space: { type: 'between', basic: 0, grow: 1, shrink: 1 } },
+    { direction: 'h', items: [11, 12], space: { type: 'between', basic: 0, grow: 1, shrink: 1 } },
     {
       identity: 7,
       direction: 'h',
       items: [1, 2, 3],
       h: { grow: 1, basic:80 },
-      v: { basic: 40 }
+      v: { basic: 40 },
+      space: { type: 'between', basic: 12, grow: 0, shrink: 0 }
     },
     { 
       identity: 8,
       direction: 'h',
       items: [4, 5, 6],
       h: { grow: 1, basic:80 },
-      v: { basic: 40 }
+      v: { basic: 40 },
+      space: { type: 'between', basic: 12, grow: 0, shrink: 0 }
+    },
+    {
+      identity: 11,
+      direction: 'v',
+      items: [1, 9, 4],
+      h: { grow: 0, basic: 40 },
+      v: { basic: 0, grow: 1 },
+      space: { type: 'between', basic: 12, grow: 0, shrink: 0 }
+    },
+    {
+      identity: 12,
+      direction: 'v',
+      items: [3, 10, 6],
+      h: { grow: 0, basic: 40 },
+      v: { basic: 0, grow: 1 },
+      space: { type: 'between', basic: 12, grow: 0, shrink: 0 }
     }
   ]
 }

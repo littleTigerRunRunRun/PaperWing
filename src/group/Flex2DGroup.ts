@@ -18,12 +18,40 @@ interface ChildFlexConfig {
   h:FlexParams
 }
 
+type FlexSpaceType = 'between' | 'around' | 'even' | 'start' | 'center' | 'end'
+interface FlexSpaceParams extends FlexParams {
+  type:FlexSpaceType
+}
+const FlexSpaceFunction = {
+  // 最后计算出一个数组，即每个子元素分配到多少间隔，不考虑shrink和grow生效的情况，那种情况注定没有间隔
+  between(value:number, space:Array<number>) {
+    value = Math.max(value, 0) // 间隙不会造成反向的收缩
+    for (let i = 1; i < space.length; i++) space[i] = i * value / (space.length - 1)
+  },
+  around(value:number, space:Array<number>) {
+    value = Math.max(value, 0)
+    for (let i = 0; i < space.length; i++) space[i] = (i + 0.5) * value / space.length
+  },
+  even(value:number, space:Array<number>) {
+    value = Math.max(value, 0)
+    for (let i = 0; i < space.length; i++) space[i] = (i + 1) * value / (space.length + 1)
+  },
+  start(value:number, space:Array<number>) {},
+  center(value:number, space:Array<number>) {
+    space.fill(value / 2)
+  },
+  end(value:number, space:Array<number>) {
+    space.fill(value)
+  },
+}
+
 export interface FlexItemConfig {
   identity?:number // 如果有的话，会加入后续的检索中
   v?:FlexParams
   h?:FlexParams
   direction:Direction // 'v' / 'h'
   items:Array<number>
+  space?:FlexSpaceParams
 }
 
 interface FlexTarget {
@@ -47,11 +75,20 @@ class FlexItem {
   protected direction:Direction
   protected group:Flex2DGroup
   protected children:Array<FlexTarget> = []
+  protected space:FlexSpaceParams
 
-  constructor({ identity, v, h, direction, items }:FlexItemConfig, group:Flex2DGroup) {
+  constructor({ identity, v, h, direction, items, space = null }:FlexItemConfig, group:Flex2DGroup) {
     this.group = group
     this.direction = direction
     this.identity = identity
+    if (space) {
+      this.space = {
+        type: space.type || 'between',
+        basic: space.basic || 0,
+        grow: space.grow || 0,
+        shrink: space.shrink || 0
+      }
+    }
 
     this.addChildren(items)
     if (this.identity) this.group.addFlexItem(this, { identity: this.identity, v, h })
@@ -64,61 +101,57 @@ class FlexItem {
   }
 
   public deliverBound() {
-    const width = this.width
-    const height = this.height
-
     let basic = 0
     let grow = 0
     let shrink = 0
-    if (this.direction === 'v') {
-      for (const child of this.children) {
-        basic += child.v.basic
-        grow += child.v.grow
-        shrink += child.v.shrink
-      }
-      if (basic > height) {
-
-      } else {
-        let y = this.y + height * -0.5
-        for (const child of this.children) {
-          // console.log(child.target, child.h.basic + 0)
-          child.target.height = child.v.basic + (height - basic) * child.v.grow / (grow || 1)
-          child.target.y = y + child.target.height * 0.5
-          y += child.target.height
-          
-          child.target.width = this.width
-          child.target.x = this.x
-        }
-      }
-    } else {
-      for (const child of this.children) {
-        // console.log(child.h)
-        basic += child.h.basic
-        grow += child.h.grow
-        shrink += child.h.shrink
-      }
-      if (basic > width) {
-        // for (const child of this.children) {
-        //   console.log(child.target, child.h.basic + 0)
-        //   child.target.width = child.h.basic + 0
-        // }
-      } else {
-        let x = this.x + width * -0.5
-        for (const child of this.children) {
-          // console.log(child.target, child.h.basic + 0)
-          child.target.width = child.h.basic + (width - basic) * child.h.grow / (grow || 1)
-          child.target.x = x + child.target.width * 0.5
-          x += child.target.width
-
-          child.target.height = this.height
-          child.target.y = this.y
-        }
-      }
-    }
-
+    // 统计来自child的三值
     for (const child of this.children) {
-      if (child.target instanceof FlexItem) child.target.deliverBound()
+      basic += child[this.direction].basic
+      grow += child[this.direction].grow
+      shrink += child[this.direction].shrink
     }
+    // 处理间隙
+    const space:Array<number> = new Array(this.children.length).fill(0)
+    if (this.space) {
+      basic += this.space.basic
+      grow += this.space.grow
+      shrink += this.space.shrink
+    }
+    // 单位计算
+    const size = this.direction === 'v' ? 'height' : 'width'
+    const sizeValue = this.direction === 'v' ? this.height : this.width
+    const position = this.direction === 'v' ? 'y' : 'x'
+    const crossSize = this.direction === 'v' ? 'width' : 'height'
+    const crossPosition = this.direction === 'v' ? 'x' : 'y'
+    const surplus = this[size] - basic
+    const unit = surplus > 0 ? surplus / (grow || 1) : surplus / (shrink || 1)
+    // 分配space
+    if (this.space) {
+      // space = 
+      FlexSpaceFunction[this.space.type](this.space.basic + unit * (surplus > 0 ? this.space.grow : -this.space.shrink), space)
+    }
+    // if (this.space) console.log(this.space, space)
+
+    // 分配定位、宽高给子元素
+    let start = this[position] + sizeValue * -0.5
+    for (let i = 0; i < this.children.length; i++) {
+      const child = this.children[i]
+      // console.log(child.target, child.h.basic + 0)
+      child.target[size] = child[this.direction].basic + unit * (surplus > 9 ? child[this.direction].grow : -child[this.direction].shrink)
+      child.target[position] = start + child.target[size] * 0.5 + space[i] // 位置 = 宽度递进 + 间距分配
+      start += child.target[size]
+      
+      // child.target.height = this.height
+      child.target[crossPosition] = this[crossPosition]
+      if (child.target instanceof FlexItem) {
+        child.target[crossSize] = this[crossSize]
+        child.target.deliverBound()
+      }
+    }
+
+    // for (const child of this.children) {
+    //   if (child.target instanceof FlexItem) child.target.deliverBound()
+    // }
   }
 }
 
@@ -184,25 +217,25 @@ export class Flex2DGroup extends Container2DGroup {
       flexItem.height = this.height
       this.flexItems.push(flexItem)
     }
+
+    this.refreshFlexItem()
   }
 
-  onWidthChange(width:number) {
+  public onWidthChange(width:number) {
     super.onWidthChange(width)
+    this.refreshFlexItem()
+  }
 
+  public onHeightChange(height:number) {
+    super.onHeightChange(height)
+    this.refreshFlexItem()
+  }
+
+  public refreshFlexItem() {
     if (!this.flexItems) return
     // 做flex计算
     for (const flexItem of this.flexItems) {
       flexItem.width = this.width
-      flexItem.deliverBound()
-    }
-  }
-
-  onHeightChange(height:number) {
-    super.onHeightChange(height)
-
-    if (!this.flexItems) return
-    // 做flex计算
-    for (const flexItem of this.flexItems) {
       flexItem.height = this.height
       flexItem.deliverBound()
     }
