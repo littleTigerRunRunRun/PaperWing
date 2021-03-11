@@ -4,8 +4,9 @@ export { constantValue } from './shader/constant'
 export { Treelike, Leaflike, Branchlike, childlike, parentlike } from './abstract/TreeAndLeaf'
 // 装饰类
 export { GetSetNumber, GetSetBound, GetSetPosition, GetSetSize, GetSetRenderOrder } from './decorator/Number'
-// 断言
-export { isRenderable } from './assert/index'
+export { GetSetAny } from './decorator/Common'
+// 断言 
+export { isRenderable, isString } from './assert/index'
 
 // 累加器
 export class Accumulator {

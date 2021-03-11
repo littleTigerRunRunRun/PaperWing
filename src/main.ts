@@ -2,7 +2,8 @@ import {
   Scene,
   Container2DGroup,
   Shape,
-  OrthoViewer
+  OrthoViewer,
+  Texture2D
 } from './index'
 import * as dat from 'dat.gui'
 import { StarTrack, StarTrackConfig } from './starTracker'
@@ -53,24 +54,54 @@ function main(canvas: HTMLCanvasElement) {
   document.body.style.backgroundColor = '#000'
 
   // main code
-  const scene:Scene = new Scene({ canvas, stats: true, glParams: { depth: false } }) // 二维内容关闭深度测试
+  const scene:Scene = new Scene({
+    canvas,
+    stats: true,
+    glParams: { depth: false },
+    assets: {
+      corner: {
+        example1: '/assets/corner/example1.png'
+      },
+      atom: {
+        solid: '/assets/atom/solid.png',
+        linearGradient: '/assets/atom/linearGradient.png'
+      }
+    }
+  }) // 二维内容关闭深度测试
   const viewer:OrthoViewer = new OrthoViewer({ far: 4000 })
   scene.viewer= viewer
-  const viewMatrix = viewer.viewMatrix
   
-  // const st = new StarTrack(rectStarTrack)
-  // scene.add(st.container)
-  // console.log(st.container)
-  // st.container.width = 300
+  scene.bind('progressEnd', function(data) {
+    // const rect1 = new Shape({
+    //   name: 'rect1',
+    //   geometry: { type: 'rect', width: 200, height: 60 },
+    //   material: {
+    //     type: 'standard',
+    //     color: { r: 0.8, g: 0.6, b: 0.4, a: 1.0},
+    //     texture: 'atom_solid',
+    //     fs: `#version 300 es
+          
+    //       uniform vec4 u_color;
+    //       uniform sampler2D u_texture;
   
-  const rect1 = new Shape({
-    name: 'rect1',
-    geometry: { type: 'rect', width: 200, height: 200 },
-    // fill: { type: 'pure', r: 1, g: 0, b: 0.4, a: 0.8 }
-    material: { type: 'standard' }
+    //       in vec2 v_uv;
+  
+    //       out vec4 fragColor;
+  
+    //       void main() {
+    //         #if (RENDER_CHANNEL == 100) // 仅仅开启alpha通道
+    //           fragColor = texture2D(u_texture, v_uv);
+    //         #endif
+    //       }
+    //     `,
+    //     defines: {
+    //       // 星轨的渲染通道控制，alpha通道/height通道/颜色通道
+    //       RENDER_CHANNEL: 100
+    //     }
+    //   }
+    // })
+    // scene.add(rect1)
   })
-  scene.add(rect1)
-  console.log(rect1)
 
   scene.tick(({ time }) => {
     // st.container.width = 600 + Math.sin(time * 0.002 + Math.PI * 0.5) * 100

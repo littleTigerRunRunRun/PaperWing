@@ -28,6 +28,7 @@ export class LineGeometry extends BaseGeometry {
     const { width, start, end } = this.config
     this.length = Math.hypot(end.x - start.x, end.y - start.y)
 
+    // 对于一个向量(x, y)垂直于它的向量是(-y, x)顺时针 (y, -x)逆时针
     const director = new Vector2(start.y - end.y, end.x - start.x).normalize()
     const p1:PWPoint = { x: start.x + director.x * width * 0.5, y: start.y + director.y * width * 0.5, z: 0, w: 0 }
     const p2:PWPoint = { x: start.x - director.x * width * 0.5, y: start.y - director.y * width * 0.5, z: 0, w: 0 }
@@ -35,6 +36,14 @@ export class LineGeometry extends BaseGeometry {
     const p4:PWPoint = { x: end.x + director.x * width * 0.5, y: end.y + director.y * width * 0.5, z: 0, w: this.length }
 
     this.points.splice(0, this.points.length, p1, p2, p3, p4)
+
+    // uvs
+    const p1UV:Point = { x: 0, y: 1 }
+    const p2UV:Point = { x: 0, y: 0 }
+    const p3UV:Point = { x: 1, y: 0 }
+    const p4UV:Point = { x: 1, y: 1 }
+    
+    this.uvs.splice(0, this.uvs.length, p1UV, p2UV, p3UV, p4UV)
 
     return { width: 0, height: 0 }
   }

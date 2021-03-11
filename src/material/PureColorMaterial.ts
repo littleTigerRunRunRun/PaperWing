@@ -1,4 +1,4 @@
-import { Dictionary } from "@/common"
+import { GLContext, MaterialReceipt } from '@/common'
 
 export interface PureColorMaterialConfig {
   type:string
@@ -6,12 +6,6 @@ export interface PureColorMaterialConfig {
   g:number
   b:number
   a:number
-}
-
-interface MaterialReceipt {
-  vs:string
-  fs:string
-  uniforms:Dictionary<any>
 }
 
 export class PureColorMaterial {
@@ -27,7 +21,7 @@ export class PureColorMaterial {
     this.a = a
   }
   
-  public getReceipt(is2:boolean):MaterialReceipt {
+  public getReceipt(is2:boolean, gl:GLContext):MaterialReceipt {
     return {
       vs: is2 ? `#version 300 es
         layout (location = 0) in vec4 positions;
@@ -80,7 +74,7 @@ export class PureColorMaterial {
     }
   }
 
-  getUniforms() {
+  public getUniforms() {
     return {
       u_color: [this.r, this.g, this.b, this.a]
     }

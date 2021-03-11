@@ -2,14 +2,16 @@ import { childlike, Treelike } from '../utils'
 import { Renderer } from './Renderer'
 import { RenderLoop, AnimationLoopStartOptions, GLParams, makeRenderLoopCarrier, RenderLoopCarrier } from './RenderLoop'
 import Subscriber from './Subscriber'
-import { Dictionary } from '@/common'
+import { Dictionary, GLContext } from '@/common'
 import { Viewer } from '../viewer'
+import { Assets, Resource } from '../resource'
 
 interface SceneInitConifg {
   canvas?:HTMLCanvasElement
   stats?:boolean
   options?:AnimationLoopStartOptions
   glParams?:GLParams
+  assets?:Assets
 }
 
 // export interface ListenGL {
@@ -30,14 +32,17 @@ export class Scene extends Treelike {
   public children:Array<childlike> = []
   public get is2() { return this.loop && this.loop.version === 2 }
   protected subscriber:Subscriber
+  public resource:Resource
   
-  constructor({ canvas, options = {}, stats = false, glParams = {} }: SceneInitConifg) {
+  constructor({ canvas, options = {}, stats = false, glParams = {}, assets = null }: SceneInitConifg) {
     super()
     
     this.canvas = canvas
     this.subscriber = new Subscriber()
     this.subscriber.set('scene', this)
     this.subscriber.set('itemId', 0)
+
+    this.resource = new Resource(this.subscriber, assets)
 
     this.loop = new RenderLoop({ canvas, subscriber: this.subscriber, options, glParams })
 

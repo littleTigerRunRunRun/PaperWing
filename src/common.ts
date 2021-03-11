@@ -44,3 +44,10 @@ export interface Orientation {
   top?:number
   bottom?:number
 }
+
+export interface MaterialReceipt {
+  vs:string
+  fs:string
+  uniforms:Dictionary<any>
+  defines?:Dictionary<any>
+}

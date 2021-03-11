@@ -81,11 +81,11 @@ export class Shape extends Leaflike {
     const is2:boolean = (this.gl as any)._version === 2
 
     if (this.material) {
-      const receipt = this.material.getReceipt(is2)
+      const receipt = this.material.getReceipt(is2, this.gl, this.subscriber)
       this.model = new Model(this.gl, {
         vs: receipt.vs,
         fs: receipt.fs,
-        defines: {},
+        defines: receipt.defines,
         uniforms: Object.assign({
         }, receipt.uniforms),
         modules: [constantValue],
@@ -93,11 +93,11 @@ export class Shape extends Leaflike {
       })
     } else {
       if (this.fill) {
-        const fillReceipt = this.fill.getReceipt(is2)
+        const fillReceipt = this.fill.getReceipt(is2, this.gl, this.subscriber)
         this.fillModel = new Model(this.gl, {
           vs: fillReceipt.vs,
           fs: fillReceipt.fs,
-          defines: {},
+          defines: fillReceipt.defines,
           uniforms: Object.assign({
           }, fillReceipt.uniforms),
           modules: [constantValue],
@@ -105,11 +105,11 @@ export class Shape extends Leaflike {
         })
       }
       if (this.stroke) {
-        const strokeReceipt = this.stroke.getReceipt(is2)
+        const strokeReceipt = this.stroke.getReceipt(is2, this.gl, this.subscriber)
         this.strokeModel = new Model(this.gl, {
           vs: strokeReceipt.vs,
           fs: strokeReceipt.fs,
-          defines: {},
+          defines: strokeReceipt.defines,
           uniforms: Object.assign({
           }, strokeReceipt.uniforms),
           modules: [constantValue],
@@ -146,7 +146,6 @@ export class Shape extends Leaflike {
       }
       
       const fillUniforms = Object.assign({}, uniforms, this.fill.getUniforms())
-      Object.assign({}, uniforms, this.fill.getUniforms())
       for (const key in fillUniforms) {
         (this.fillModel as any).uniforms[key] = fillUniforms[key]
       }

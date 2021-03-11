@@ -1,14 +1,8 @@
-import { Dictionary } from "@/common"
 import { Texture2D } from '@luma.gl/webgl'
+import { MaterialReceipt } from '@/common'
 
 export interface Texture2DMaterialConfig {
   type:string
-}
-
-interface MaterialReceipt {
-  vs:string
-  fs:string
-  uniforms:Dictionary<any>
 }
 
 export class Texture2DMaterial {
@@ -70,7 +64,7 @@ export class Texture2DMaterial {
     }
   }
 
-  getUniforms() {
+  public getUniforms() {
     return {
     }
   }

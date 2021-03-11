@@ -1,4 +1,4 @@
-import { PWPoint } from '@/common'
+import { PWPoint, Point } from '@/common'
 import { Vector2 } from 'math.gl'
 import { Geometry } from '@luma.gl/engine'
 import { GetSetBound, GetSetNumber, GetSetSize } from '../utils'
@@ -8,6 +8,7 @@ export interface GeometryStandard {
   stroke?:number
   length:number
   points:Array<PWPoint>
+  uvs:Array<Point>
   normals:Array<Vector2>
   indices:Array<number>
   geometry:Geometry
@@ -28,24 +29,26 @@ interface LumaGeometryConfig {
   positions:Array<number>
   normals:Array<number>
   indices:Array<number>
+  uvs?:Array<number>
 }
 
 // 对luma Geometry对象的基本包装以方便使用
 class LumaGeometry extends Geometry {
-  constructor({ positions = [], normals = [], indices = [] }:LumaGeometryConfig) {
+  constructor({ positions = [], normals = [], indices = [], uvs = [] }:LumaGeometryConfig) {
     super({
       indices: { size: 1, value: new Uint16Array(indices) },
       attributes: {
         // x,y,z,w
         POSITION: { size: 4, value: new Float32Array(positions) },
-        NORMAL: { size: 3, value: new Float32Array(normals) }
+        NORMAL: { size: 3, value: new Float32Array(normals) },
+        uv: { size: 2, value: new Float32Array(uvs) }
       }
     })
   }
 
-  rebuild({ positions = [], normals = [], indices = [] }:LumaGeometryConfig) {
+  rebuild({ positions = [], normals = [], indices = [], uvs = [] }:LumaGeometryConfig) {
     this._setAttributes(
-      { POSITION: { size: 4, value: new Float32Array(positions) }, NORMAL: { size: 3, value: new Float32Array(normals) } },
+      { POSITION: { size: 4, value: new Float32Array(positions) }, NORMAL: { size: 3, value: new Float32Array(normals) }, uv: { size: 2, value: new Float32Array(uvs) } },
       { size: 1, value: new Uint16Array(indices) }
     );
     (this as any).vertexCount = indices.length
@@ -62,6 +65,7 @@ export class BaseGeometry implements GeometryStandard {
   protected dimension:number
   public length:number = 0
   public points:Array<PWPoint> = []
+  public uvs:Array<Point> = []
   public normals:Array<Vector2> = []
   public indices:Array<number> = []
   public geometry:LumaGeometry
@@ -147,7 +151,10 @@ export class BaseGeometry implements GeometryStandard {
     // console.log(this.points, this.normals)
     this.normals.forEach((normal, index) => normals.push(...[normal.x, normal.y, this.points[index].z]))
 
-    if (!this.geometry) this.geometry = new LumaGeometry({ positions, normals, indices: this.indices })
+    const uvs = []
+    this.uvs.forEach((uv) => { uvs.push(...[uv.x, uv.y]) })
+
+    if (!this.geometry) this.geometry = new LumaGeometry({ positions, normals, uvs, indices: this.indices })
     else this.geometry.rebuild({ positions, normals, indices: this.indices })
 
     if (this.stroke) {

@@ -5,3 +5,5 @@ export { BaseGroup, Container2DGroup, Flex2DGroup, FlexParams, FlexItemConfig } 
 export { Shape } from './core/Shape'
 
 export { Viewer, BaseViewer, OrthoViewer } from './viewer/index'
+
+export { Texture2D } from '@luma.gl/webgl'
