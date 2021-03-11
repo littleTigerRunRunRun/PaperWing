@@ -120,9 +120,10 @@ export class Shape extends Leaflike {
   }
   
   // give uniforms
-  public render({ uniforms = {} }:RenderParams) {
+  public render({ uniforms = {}, framebuffer = null }:RenderParams) {
     if (!this.visible) return
 
+    const drawTarget = { framebuffer } // framebuffer
     setParameters(this.gl, {
       blend: true
     })
@@ -138,7 +139,7 @@ export class Shape extends Leaflike {
         (this.model as any).uniforms[key] = uniforms[key]
       }
       this.checkModelMatrix(this.model)
-      this.model.draw()
+      this.model.draw(drawTarget)
     }
     if (this.fill) {
       if (this.geometry.geometryNeedRefresh) {
@@ -150,7 +151,7 @@ export class Shape extends Leaflike {
         (this.fillModel as any).uniforms[key] = fillUniforms[key]
       }
       this.checkModelMatrix(this.fillModel)
-      this.fillModel.draw()
+      this.fillModel.draw(drawTarget)
     }
     if (this.stroke) {
       if (this.geometry.geometryNeedRefresh) {
@@ -162,7 +163,7 @@ export class Shape extends Leaflike {
         (this.strokeModel as any).uniforms[key] = strokeUniforms[key]
       }
       this.checkModelMatrix(this.strokeModel)
-      this.strokeModel.draw()
+      this.strokeModel.draw(drawTarget)
     }
 
     this.geometry.geometryNeedRefresh = false

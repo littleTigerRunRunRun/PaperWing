@@ -5,6 +5,7 @@ import Subscriber from './Subscriber'
 import { Dictionary, GLContext } from '@/common'
 import { Viewer } from '../viewer'
 import { Assets, Resource } from '../resource'
+import { Framebuffer } from '@luma.gl/webgl'
 
 interface SceneInitConifg {
   canvas?:HTMLCanvasElement
@@ -20,6 +21,7 @@ interface SceneInitConifg {
 
 export interface RenderParams {
   uniforms:Dictionary<any>
+  framebuffer?:Framebuffer
 }
 
 // 将RenderLoopCarrier这个扩展混合进Treelike
