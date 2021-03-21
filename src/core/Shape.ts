@@ -122,6 +122,10 @@ export class Shape extends Leaflike {
   // give uniforms
   public render({ uniforms = {}, framebuffer = null }:RenderParams) {
     if (!this.visible) return
+    if (!this.gl) {
+      console.error('no gl ready for shape render!')
+      return
+    }
 
     const drawTarget = { framebuffer } // framebuffer
     setParameters(this.gl, {
@@ -134,11 +138,11 @@ export class Shape extends Leaflike {
       if (this.geometry.geometryNeedRefresh) this.strokeModel.setGeometry(this.geometry.geometry)
 
       Object.assign(uniforms, this.material.getUniforms())
-      // console.log(uniforms)
       for (const key in uniforms) {
         (this.model as any).uniforms[key] = uniforms[key]
       }
       this.checkModelMatrix(this.model)
+      // console.log(uniforms)
       this.model.draw(drawTarget)
     }
     if (this.fill) {

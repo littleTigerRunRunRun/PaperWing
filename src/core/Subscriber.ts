@@ -1,8 +1,15 @@
 import { Dictionary } from '@/common'
 
+interface NowCompute {
+  callback:Function,
+  params?:Array<any>
+}
+
 interface PaperWingSubscriber {
   list:Dictionary<Array<any>>
   onceList:Dictionary<Array<any>>
+  nextList:Dictionary<Array<any>>
+  nowList:Array<NowCompute>
   history:Dictionary<Array<any>>
   check()
   register(eventName:string, useHistory?:boolean)
@@ -17,6 +24,8 @@ interface PaperWingSubscriber {
 export default class Subscriber implements PaperWingSubscriber {
   list:Dictionary<Array<any>> = {}
   onceList:Dictionary<Array<any>> = {}
+  nextList:Dictionary<Array<any>> = {}
+  nowList:Array<NowCompute> = []
   history:Dictionary<Array<any>> = {}
   sets:Dictionary<any> = {}
 
@@ -32,6 +41,7 @@ export default class Subscriber implements PaperWingSubscriber {
     // 调试时查看订阅情况
     console.log('list:', this.list)
     console.log('onceList:', this.onceList)
+    console.log('nextList:', this.nextList)
     // console.log('history:', history)
   }
   
@@ -39,6 +49,7 @@ export default class Subscriber implements PaperWingSubscriber {
   public register(eventName:string, useHistory?:boolean) {
     if (!this.list[eventName]) this.list[eventName] = []
     if (!this.onceList[eventName]) this.onceList[eventName] = []
+    if (!this.nextList[eventName]) this.nextList[eventName] = []
     if (!this.history[eventName] && useHistory) this.history[eventName] = []
   }
   
@@ -48,6 +59,8 @@ export default class Subscriber implements PaperWingSubscriber {
     delete this.list[eventName]
     this.onceList[eventName].splice(0, this.onceList[eventName].length)
     delete this.onceList[eventName]
+    this.nextList[eventName].splice(0, this.nextList[eventName].length)
+    delete this.nextList[eventName]
   }
   
   // 参与监听一种事件
@@ -74,22 +87,49 @@ export default class Subscriber implements PaperWingSubscriber {
     if (!this.onceList[eventName]) this.register(eventName)
     this.onceList[eventName].push(callback)
   }
+
+  public next(eventName:string, callback:Function) {
+    if (this.history[eventName] && this.history[eventName].length > 0) {
+      for (const item of this.history[eventName]) {
+        callback.apply(this, item)
+      }
+      return
+    }
+    if (!this.nextList[eventName]) this.register(eventName)
+    this.nextList[eventName].push(callback)
+  }
   
   // 对某种事件广播信息
   public broadcast(eventName:string, ...argus:Array<any>) {
     if (!this.list[eventName]) this.register(eventName)
     // 对listen类型的监听者广播
-    if (this.list[eventName]) {
+    if (this.list[eventName] && this.list[eventName].length > 0) {
       for (const listener of this.list[eventName]) {
         listener.apply(this, argus)
       }
     }
     // 对once类型的监听者广播
-    if (this.onceList[eventName]) {
+    if (this.onceList[eventName] && this.onceList[eventName].length > 0) {
       for (const listener of this.onceList[eventName]) {
         listener.apply(this, argus)
       }
       this.onceList[eventName].splice(0, this.onceList[eventName].length)
+    }
+    // 对next类型的广播
+    if (this.nextList[eventName] && this.nextList[eventName].length > 0) {
+      for (const listener of this.nextList[eventName]) {
+        this.nowList.push({
+          callback: listener,
+          params: argus
+        })
+      }
+      this.nextList[eventName].splice(0, this.nextList[eventName].length)
+      requestAnimationFrame(() => {
+        for (const compute of this.nowList) {
+          compute.callback.apply(this, argus)
+        }
+        this.nowList.splice(0, this.nowList.length)
+      })
     }
   
     if (this.history[eventName]) this.history[eventName].push(argus)
@@ -118,6 +158,10 @@ export default class Subscriber implements PaperWingSubscriber {
       this.onceList[key].splice(0, this.onceList[key].length)
       delete this.onceList[key]
     }
+    for (const key in this.nextList) {
+      this.nextList[key].splice(0, this.nextList[key].length)
+      delete this.nextList[key]
+    }
     for (const key in this.history) {
       this.history[key].splice(0, this.history[key].length)
       delete this.history[key]
@@ -128,6 +172,7 @@ export default class Subscriber implements PaperWingSubscriber {
     }
     this.list = {}
     this.onceList = {}
+    this.nextList = {}
     this.history = {}
     this.sets = {}
   }

@@ -1,7 +1,7 @@
 import { PWPoint, Point } from '@/common'
 import { Vector2 } from 'math.gl'
 import { Geometry } from '@luma.gl/engine'
-import { GetSetBound, GetSetNumber, GetSetSize } from '../utils'
+import { GetSetBound, GetSetNumber } from '../utils'
 
 // 用于给各种Geometry实现用的接口
 export interface GeometryStandard {

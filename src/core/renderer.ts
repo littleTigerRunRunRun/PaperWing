@@ -3,6 +3,7 @@ import { GLContext } from '@/common'
 import { clear } from '@luma.gl/webgl'
 import Stats from 'stats.js'
 import { isRenderable } from '../utils'
+import { resizeGLContext } from '@luma.gl/gltools'
 
 interface RendererConfig {
   scene:Scene
@@ -39,6 +40,9 @@ export class Renderer {
     if (this.stats) this.stats.update()
     // this.clear()
     const viewer = this.scene.viewer
+    
+    resizeGLContext(this.gl)
+    this.gl.viewport(0, 0, this.gl.drawingBufferWidth, this.gl.drawingBufferHeight)
 
     // 这里的child可以是group、shape和particle
     // shape和particle属于带有model的绘制，而group属于

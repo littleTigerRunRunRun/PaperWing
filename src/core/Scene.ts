@@ -34,6 +34,7 @@ export class Scene extends Treelike {
   public children:Array<childlike> = []
   public get is2() { return this.loop && this.loop.version === 2 }
   protected subscriber:Subscriber
+  public getSubscriber() { return this.subscriber }
   public resource:Resource
   
   constructor({ canvas, options = {}, stats = false, glParams = {}, assets = null }: SceneInitConifg) {
@@ -49,6 +50,34 @@ export class Scene extends Treelike {
     this.loop = new RenderLoop({ canvas, subscriber: this.subscriber, options, glParams })
 
     this.renderer = new Renderer({ scene: this, stats })
+  
+    // 综合resouce和gl准备好的钩子
+    this.subscriber.next('getGl', this.onGLGet)
+    this.subscriber.once('progressEnd', this.onAssetsGet)
+  }
+
+  private onGLGet = () => {
+    this.checkGLAndAssets()
+  }
+
+  private onAssetsGet = () => {
+    this.checkGLAndAssets()
+  }
+
+  private checkCount:number = 0
+  private checkGLAndAssets() {
+    this.checkCount++
+    if (this.checkCount === 2) {
+      if (this._onReady) {
+        this._onReady()
+      }
+    }
+  }
+
+  // 钩子：资源和gl都准备完毕
+  private _onReady() {}
+  public onReady(callback) {
+    this._onReady = callback
   }
 
   public add(child:childlike):number {

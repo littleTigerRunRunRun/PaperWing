@@ -1,6 +1,7 @@
 import { GLContext, MaterialReceipt, RGBAColorObject, Dictionary } from '@/common'
 import Subscriber from '@/core/Subscriber'
 import { Texture2D } from '@luma.gl/webgl'
+import GL from '@luma.gl/constants'
 
 export interface StandardMaterialConfig {
   type: string,
@@ -54,6 +55,7 @@ export class StandardMaterial {
   public gl:GLContext
   public uniforms:Dictionary<any>
   public defines:Dictionary<any>
+  private subscriber:Subscriber
 
   constructor({ color = { r: 0, g: 0, b: 0, a: 0 }, texture = null, normalMap = null, uniformTextures = [], fs = '', vs = '', uniforms = null, defines = null }:StandardMaterialConfig) {
     this.color = color
@@ -68,8 +70,9 @@ export class StandardMaterial {
 
   // :MaterialReceipt 返回回执
   public getReceipt(is2:boolean, gl:GLContext, subscriber:Subscriber):MaterialReceipt {
-    this.textureObject = new Texture2D(gl, { data: subscriber.get(`asset_${this.texture}`) || this.texture })
+    this.subscriber = subscriber
     this.gl = gl
+    this.createTexture()
 
     return {
       vs: this.vs ? this.vs : (is2 ? `#version 300 es
@@ -135,7 +138,24 @@ export class StandardMaterial {
     }
   }
 
+  private createTexture() {
+    const asset = this.subscriber.get(`asset_${this.texture}`)
+    if (this.textureObject || !asset) return
+    if (asset && asset instanceof Texture2D) {
+      this.textureObject = asset
+      return
+    }
+    
+    this.textureObject = new Texture2D(this.gl, { data: this.subscriber.get(`asset_${this.texture}`) });
+    (this.textureObject as any).setParameters({
+      [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
+      [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE
+    })
+  }
+
   public getUniforms() {
+    this.createTexture()
+
     return Object.assign({
       u_color: [this.color.r, this.color.g, this.color.b, this.color.a],
       u_texture: this.textureObject

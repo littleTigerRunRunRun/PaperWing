@@ -7,3 +7,5 @@ export { Shape } from './core/Shape'
 export { Viewer, BaseViewer, OrthoViewer } from './viewer/index'
 
 export { Texture2D } from '@luma.gl/webgl'
+
+export { ComputeTexture } from './computeTexture'

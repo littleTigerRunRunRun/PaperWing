@@ -45,7 +45,6 @@ export class BaseViewer implements Viewer {
     } else {
       this.projectionMatrix = new Matrix4(matrix)
     }
-    console.log(this.projectionMatrix)
 
     return this.projectionMatrix
   }

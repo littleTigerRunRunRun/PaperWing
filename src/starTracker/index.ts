@@ -2,6 +2,8 @@ import { Scene, Shape, Flex2DGroup, FlexParams, FlexItemConfig } from '../index'
 import { RGBAColorObject, Orientation } from '../common'
 import { GetSetNumber, GetSetSize } from '../utils'
 
+export { Brush, Atom } from './Brush'
+
 const templates = []
 
 // 基础数据格式定义：
