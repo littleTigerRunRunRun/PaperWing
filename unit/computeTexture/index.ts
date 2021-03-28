@@ -1,42 +1,12 @@
 import { 
   Scene,
-  Container2DGroup,
   Shape,
   OrthoViewer,
-  Texture2D,
   ComputeTexture
-} from './index'
-import * as dat from 'dat.gui'
-import { StarTrack, StarTrackConfig, Brush, Atom } from './starTracker'
+} from '../../src/index'
 
-interface EntryConfig {
-  canvas: HTMLCanvasElement
-}
-
-// 以下用于测试
-declare global {
-  interface Window {
-    setPaperWingEntry(EntryConfig)
-  }
-}
-
-const defaultData = {
-  width: 600,
-  height: 360
-}
-const handlers:any = {}
-const controlls:any = {}
-
-window.setPaperWingEntry = function(config: EntryConfig) {
-  const { canvas } = config
-  main(canvas)
-}
-
-// 测试程序，测试Tree/Leaf结构API的正确性
-function main(canvas: HTMLCanvasElement) {
-  // style modify
-  document.body.style.backgroundColor = '#000'
-
+// 测试程序，测试computeTexture API的正确性
+export default function main(canvas: HTMLCanvasElement) {
   // main code
   const scene:Scene = new Scene({
     canvas,
@@ -54,30 +24,42 @@ function main(canvas: HTMLCanvasElement) {
   }) // 二维内容关闭深度测试
   const viewer:OrthoViewer = new OrthoViewer({ far: 4000 })
   scene.viewer= viewer
-
+  
   scene.onReady(() => {
-    const brush = new Brush({
-      name: 'brush_1', width: 1, height: 1, subscriber: scene.getSubscriber()
+    console.log('excute onReady')
+    const computeTexture = new ComputeTexture({ name: 'test_tile', width: 8, height: 10, subscriber: scene.getSubscriber() })
+    const atom1 = new Shape({
+      name: 'a1',
+      geometry: { type: 'rect', width: 8, height: 2 },
+      material: {
+        type: 'standard',
+        texture: 'atom_solid'
+      }
     })
+    computeTexture.add(atom1)
+    atom1.y = 4
 
-    const atom1 = new Atom({
-      name: 'a_1_1',
-      type: 'solid',
-      width: 100,
-      height: 100,
-      x: 0,
-      y: 0,
-      grey: 1
+    const atom2 = new Shape({
+      name: 'a2',
+      geometry: { type: 'rect', width: 8, height: 2 },
+      material: {
+        type: 'standard',
+        texture: 'atom_solid'
+      }
     })
-    brush.add(atom1)
-    brush.render()
+    computeTexture.add(atom2)
+    atom2.y = -4
+    // console.log(atom2)
+
+    computeTexture.render()
 
     const rect1 = new Shape({
       name: 'rect1',
-      geometry: { type: 'rect', width: 200, height: 200 },
+      geometry: { type: 'rect', width: 200, height: 20 },
       material: {
         type: 'standard',
-        texture: 'brush_1',
+        color: { r: 0.8, g: 0.6, b: 0.4, a: 1.0},
+        texture: 'test_tile',
         vs: `#version 300 es
           layout (location = 0) in vec4 positions;
           layout (location = 1) in vec2 uv;

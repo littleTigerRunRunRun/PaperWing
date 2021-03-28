@@ -7,7 +7,7 @@ import { setParameters } from '@luma.gl/gltools'
 import { RenderParams } from './Scene'
 import { Matrix4 } from 'math.gl'
 
-interface ShapeConfig {
+export interface ShapeConfig {
   name?:string
   visible?:boolean
   geometry:GeometryConfig,

@@ -16,8 +16,8 @@ export interface ComputeTextureConfig {
 
 // compute texture 重点在于compute，它是一个动态的计算过程，不放在管线里面的原因是，它的计算频率远低于per frame
 export class ComputeTexture extends Treelike {
-  private subscriber:Subscriber
-  private gl:GLContext
+  protected subscriber:Subscriber
+  protected gl:GLContext
   public name:string
   public buffer:Framebuffer
   public viewer:Viewer
@@ -30,7 +30,7 @@ export class ComputeTexture extends Treelike {
     this.name = name
     this.subscriber = subscriber
     this.viewer = viewer || new OrthoViewer({ far: 2000, near: 0.01 })
-    console.log(this.viewer)
+    // console.log(this.viewer)
     this.width = width
     this.height = height
 
