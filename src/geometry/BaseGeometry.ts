@@ -134,8 +134,8 @@ export class BaseGeometry implements GeometryStandard {
     for (let i = 0; i < this.points.length; i++) {
       const nextPoint = this.points[i + 1] ? this.points[i + 1] : this.points[0]
       const prevPoint = this.points[i - 1] ? this.points[i - 1] : this.points[this.points.length - 1]
-      const v1 = new Vector2(this.points[i].x - nextPoint.x, this.points[i].y - nextPoint.y).normalize()
-      const v2 = new Vector2(this.points[i].x - prevPoint.x, this.points[i].y - prevPoint.y).normalize()
+      const v1 = new Vector2(this.points[i].x - nextPoint.x, this.points[i].y - nextPoint.y) //.normalize()
+      const v2 = new Vector2(this.points[i].x - prevPoint.x, this.points[i].y - prevPoint.y) // .normalize()
       v1.add(v2)
       v1.normalize()
       this.normals.push(v1)

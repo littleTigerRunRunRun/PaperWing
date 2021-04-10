@@ -127,7 +127,6 @@ export class Brush extends ComputeTexture {
   // Brush只允许添加Atom类型作为其子元素，绘制时读取的是
   public add(child:Atom):number {
     if (child.parent === this) return
-    console.log('xx', child)
 
     // 添加给Brush的参数是Atom，但是添加给ComputeTexture绘制逻辑的是Atom.shape
     const index = super.add(child.shape)

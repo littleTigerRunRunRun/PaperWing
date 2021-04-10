@@ -38,10 +38,10 @@ export class LineGeometry extends BaseGeometry {
     this.points.splice(0, this.points.length, p1, p2, p3, p4)
 
     // uvs
-    const p1UV:Point = { x: 0, y: 1 }
-    const p2UV:Point = { x: 0, y: 0 }
-    const p3UV:Point = { x: 1, y: 0 }
-    const p4UV:Point = { x: 1, y: 1 }
+    const p1UV:Point = { x: 0, y: 0 }
+    const p2UV:Point = { x: 0, y: 1 }
+    const p3UV:Point = { x: 1, y: 1 }
+    const p4UV:Point = { x: 1, y: 0 }
     
     this.uvs.splice(0, this.uvs.length, p1UV, p2UV, p3UV, p4UV)
 

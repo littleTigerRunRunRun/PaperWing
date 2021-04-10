@@ -68,6 +68,10 @@ export interface StarTrackConfig {
   flexs:Array<FlexItemConfig>
 }
 
+export class StarTrackSegment extends Shape {
+
+}
+
 export interface StarTrack extends GetSetSize {}
 
 @GetSetNumber('width', 0)
