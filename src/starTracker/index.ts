@@ -1,8 +1,9 @@
-import { Scene, Shape, Flex2DGroup, FlexParams, FlexItemConfig } from '../index'
+import { Shape, Flex2DGroup, FlexParams, FlexItemConfig } from '../index'
 import { RGBAColorObject, Orientation } from '../common'
 import { GetSetNumber, GetSetSize } from '../utils'
 
 export { Brush, Atom } from './Brush'
+export { STShape } from './STShape'
 
 const templates = []
 
@@ -52,7 +53,6 @@ type ItemType = 'rect' | 'line'
 interface StarTrackItem {
   identity:number // 物件的唯一id
   desc?:string // 数据里的描述文本
-  type:ItemType
   fill?:RGBAColorObject // 区域表示的颜色
   h:FlexParams
   v:FlexParams
@@ -122,15 +122,26 @@ export class StarTrack {
     })
   }
 
+  // starTrack的本质是一个单轴的flex容器
   protected createItems(items:Array<StarTrackItem>) {
     for (const item of items) {
-      const shape = new Shape({
+      const container = new Flex2DGroup({
         name: `starItem_${item.identity}`,
-        geometry: { type: item.type, width: item.h.basic, height: item.v.basic },
-        fill: Object.assign({ type: 'pure' }, item.fill)
+        width: item.h.basic,
+        height: item.v.basic,
+        helper: item.fill ? { fill: item.fill } : null
       })
-      this.container.add(shape)
-      this.container.addFlexItem(shape, item)
+      // const shape = new Shape({
+      //   name: 
+      //   geometry: { type: item.type, width: item.h.basic, height: item.v.basic },
+      //   fill: Object.assign({ type: 'pure' }, item.fill)
+      // })
+      this.container.add(container)
+      this.container.addFlexItem(container, item)
     }
+  }
+
+  public getChildByIdentity(identity:number):Flex2DGroup {
+    return this.container.getChildByIdentity(identity).target as Flex2DGroup
   }
 }

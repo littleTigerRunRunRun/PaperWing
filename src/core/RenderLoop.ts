@@ -105,7 +105,7 @@ export class RenderLoop {
     this.subscriber.register('getGl', true)
 
     this.loop = new AnimationLoop({
-      onInitialize: ({ gl }:AnimationLoopInitializeArguments) => {
+      onInitialize: ({ gl }:AnimationLoopInitializeArguments):any => {
         this.gl = gl
         this.subscriber.broadcast('getGl', gl)
         
@@ -118,7 +118,9 @@ export class RenderLoop {
           // depthFunc: gl.LEQUAL
         })
 
-        return {}
+        return {
+          gl
+        }
       },
       onRender: ({ time }:AnimationLoopRenderArguments) => {
         // 前帧计算的响应

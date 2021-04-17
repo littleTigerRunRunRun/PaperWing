@@ -51,8 +51,14 @@ export class Container2DGroup extends BaseGroup {
   //   // if (this.helperShape && isRenderable(this.helperShape)) this.helperShape.render(argus[0])
   // }
 
-  onXChange() {
-    console.log('x change')
+  onXChange(x) {
+    // console.log('x change', x)
+    if (this.helperShape) this.helperShape.x = x
+  }
+
+  onYChange(y) {
+    // console.log('y change', y)
+    if (this.helperShape) this.helperShape.y = y
   }
 
   onWidthChange(width:number) {

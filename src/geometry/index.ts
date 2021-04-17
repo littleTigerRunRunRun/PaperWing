@@ -1,6 +1,8 @@
 import { RectGeometry, RectGeometryShapeConfig } from './RectGeometry'
 import { LineGeometry, LineGeometryShapeConfig } from './LineGeometry'
 
+export { LineGeometryShapeConfig } from './LineGeometry'
+
 export type GeometryType = RectGeometry | LineGeometry
 
 export type GeometryConfig = RectGeometryShapeConfig | LineGeometryShapeConfig

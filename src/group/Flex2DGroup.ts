@@ -24,24 +24,24 @@ interface FlexSpaceParams extends FlexParams {
 }
 const FlexSpaceFunction = {
   // 最后计算出一个数组，即每个子元素分配到多少间隔，不考虑shrink和grow生效的情况，那种情况注定没有间隔
-  between(value:number, space:Array<number>) {
-    value = Math.max(value, 0) // 间隙不会造成反向的收缩
+  between(basic:number, value:number, space:Array<number>) {
+    value = Math.max(value, 0) + basic // 间隙不会造成反向的收缩
     for (let i = 1; i < space.length; i++) space[i] = i * value / (space.length - 1)
   },
-  around(value:number, space:Array<number>) {
-    value = Math.max(value, 0)
+  around(basic:number, value:number, space:Array<number>) {
+    value = Math.max(value, 0) + basic
     for (let i = 0; i < space.length; i++) space[i] = (i + 0.5) * value / space.length
   },
-  even(value:number, space:Array<number>) {
-    value = Math.max(value, 0)
+  even(basic:number, value:number, space:Array<number>) {
+    value = Math.max(value, 0) + basic
     for (let i = 0; i < space.length; i++) space[i] = (i + 1) * value / (space.length + 1)
   },
-  start(value:number, space:Array<number>) {},
-  center(value:number, space:Array<number>) {
-    space.fill(value / 2)
+  start(basic:number, value:number, space:Array<number>) {},
+  center(basic:number, value:number, space:Array<number>) {
+    space.fill(basic + value / 2)
   },
-  end(value:number, space:Array<number>) {
-    space.fill(value)
+  end(basic:number, value:number, space:Array<number>) {
+    space.fill(basic + value)
   },
 }
 
@@ -128,7 +128,8 @@ class FlexItem {
     // 分配space
     if (this.space) {
       // space = 
-      FlexSpaceFunction[this.space.type](this.space.basic + unit * (surplus > 0 ? this.space.grow : -this.space.shrink), space)
+      FlexSpaceFunction[this.space.type](this.space.basic, unit * (surplus > 0 ? this.space.grow : -this.space.shrink), space)
+      // console.log(space)
     }
     // if (this.space) console.log(this.space, space)
 
@@ -198,7 +199,7 @@ export class Flex2DGroup extends Container2DGroup {
     }
   }
 
-  public getChildByIdentity(identity:number) {
+  public getChildByIdentity(identity:number):FlexTarget {
     return this.itemsIndex[identity]
   }
 
@@ -231,6 +232,7 @@ export class Flex2DGroup extends Container2DGroup {
     this.refreshFlexItem()
   }
 
+  // 需要被优化帧计算
   public refreshFlexItem() {
     if (!this.flexItems) return
     // 做flex计算

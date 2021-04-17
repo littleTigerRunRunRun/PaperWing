@@ -47,7 +47,7 @@ class LumaGeometry extends Geometry {
   }
 
   rebuild({ positions = [], normals = [], indices = [], uvs = [] }:LumaGeometryConfig) {
-    this._setAttributes(
+    (this as any)._setAttributes(
       { POSITION: { size: 4, value: new Float32Array(positions) }, NORMAL: { size: 3, value: new Float32Array(normals) }, uv: { size: 2, value: new Float32Array(uvs) } },
       { size: 1, value: new Uint16Array(indices) }
     );
