@@ -1,10 +1,8 @@
 import { Container2DGroup, Container2DGroupConfig } from './Container2DGroup'
-import { isRenderable, GetSetBound, GetSetNumber, childlike } from '../utils'
+import { ClassTypeName, SignClassTypeName, GetSetBound, GetSetNumber, childlike } from '../utils'
 import { Dictionary, Direction } from '@/common'
 
-interface Flex2DGroupConfig extends Container2DGroupConfig {
-
-}
+// interface Flex2DGroupConfig extends Container2DGroupConfig {}
 
 export interface FlexParams {
   grow?:number
@@ -156,23 +154,27 @@ class FlexItem {
   }
 }
 
+export interface Flex2DGroup extends ClassTypeName {}
+
+// 目前有一个重大的疏漏，就是没有考虑内容的旋转、缩放等，不过我的建议是或许本身就可以不考虑
 // 有一部分有点类似flex布局，但是更为复杂
+@SignClassTypeName('flex2dGroup')
 export class Flex2DGroup extends Container2DGroup {
   protected itemsIndex:Dictionary<FlexTarget> = {}
   protected flexItems:Array<FlexItem> = []
 
-  constructor({ name, width, height, helper = null }:Flex2DGroupConfig) {
-    super({ name, width, height, helper })
-  }
+  // constructor({ name, width, height, helper = null }:Flex2DGroupConfig) {
+  //   super({ name, width, height, helper })
+  // }
 
-  public render(...argus:Array<any>) {
-    // 传递render指令
-    for (const child of this.children) {
-      if (isRenderable(child)) {
-        child.render(...argus)
-      }
-    }
-  }
+  // public render(...argus:Array<any>) {
+  //   // 传递render指令
+  //   for (const child of this.children) {
+  //     if (isRenderable(child)) {
+  //       child.render(...argus)
+  //     }
+  //   }
+  // }
 
   public add(child:childlike):number {
     if (child.parent === this) return

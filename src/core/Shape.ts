@@ -1,7 +1,7 @@
-import { Leaflike, constantValue, GetSetNumber, GetSetBound } from '../utils' // , GetSetRenderOrder
+import { Leaflike, constantValue, GetSetNumber, GetSetSize, MatrixManager2D, BuildMatrixManager2D, ClassTypeName, SignClassTypeName } from '../utils' // , GetSetRenderOrder
 import { getGeometry, GeometryType, GeometryConfig } from '../geometry/index'
 import { getMaterial, MaterialType, MaterialConfig } from '../material/index'
-import { GLContext, Length16Array } from '@/common'
+import { GLContext, Length16NumberArray } from '@/common'
 import { Model } from '@luma.gl/engine'
 import { setParameters } from '@luma.gl/gltools'
 import { RenderParams } from './Scene'
@@ -16,10 +16,10 @@ export interface ShapeConfig {
   stroke?:MaterialConfig
 }
 
-export interface Shape extends GetSetBound {}
+export interface Shape extends GetSetSize, MatrixManager2D, ClassTypeName {}
 
-@GetSetNumber('x', 0)
-@GetSetNumber('y', 0)
+@BuildMatrixManager2D()
+@SignClassTypeName('shape')
 @GetSetNumber('width', 0)
 @GetSetNumber('height', 0)
 export class Shape extends Leaflike {
@@ -39,9 +39,6 @@ export class Shape extends Leaflike {
   private materialConfig:MaterialConfig
   private fillConfig:MaterialConfig
   private strokeConfig:MaterialConfig
-
-  public set rotate(rotate:number) { this.geometry.rotate = rotate }
-  public get rotate():number { return this.geometry.rotate }
   
   private _visible:boolean
   public get visible() { return this._visible }
@@ -126,6 +123,7 @@ export class Shape extends Leaflike {
       console.error('no gl ready for shape render!')
       return
     }
+    if (this.needRefreshMatrix) this.computeMatrix()
 
     const drawTarget = { framebuffer } // framebuffer
     setParameters(this.gl, {
@@ -141,8 +139,7 @@ export class Shape extends Leaflike {
       for (const key in uniforms) {
         (this.model as any).uniforms[key] = uniforms[key]
       }
-      this.checkModelMatrix(this.model)
-      // console.log(uniforms)
+      (this.model as any).uniforms.u_modelMatrix = this._matrix
       this.model.draw(drawTarget)
     }
     if (this.fill) {
@@ -154,7 +151,7 @@ export class Shape extends Leaflike {
       for (const key in fillUniforms) {
         (this.fillModel as any).uniforms[key] = fillUniforms[key]
       }
-      this.checkModelMatrix(this.fillModel)
+      (this.fillModel as any).uniforms.u_modelMatrix = this._matrix
       this.fillModel.draw(drawTarget)
     }
     if (this.stroke) {
@@ -166,7 +163,7 @@ export class Shape extends Leaflike {
       for (const key in strokeUniforms) {
         (this.strokeModel as any).uniforms[key] = strokeUniforms[key]
       }
-      this.checkModelMatrix(this.strokeModel)
+      (this.strokeModel as any).uniforms.u_modelMatrix = this._matrix
       this.strokeModel.draw(drawTarget)
     }
 
@@ -188,6 +185,31 @@ export class Shape extends Leaflike {
   //   this.refreshGeometry()
   // }
 
+  // private checkModelMatrix(model:Model) {
+  //   if (this.geometry.matrixNeedRefresh) {
+  //     const ax = 0.5 // anchor x
+  //     const ay = 0.5
+  //     const w = this.geometry.width
+  //     const h = this.geometry.height
+  //     const sx = 1 // scale x
+  //     const sy = 1
+  //     const sina = Math.sin(this.geometry.rotate)
+  //     const cosa = Math.cos(this.geometry.rotate)
+  //     const matrixArray:Length16NumberArray = [
+  //       sx * cosa, sx * -sina, 0, 0,
+  //       sy * sina, sy * cosa, 0, 0,
+  //       0, 0, 1, 0,
+  //       this.geometry.x, this.geometry.y, 0, 1
+  //     ]
+  //     if (this.modelMatrix) {
+  //       this.modelMatrix.set(...matrixArray)
+  //     } else {
+  //       this.modelMatrix = new Matrix4(matrixArray)
+  //     }
+  //   }
+  //   (model as any).uniforms.u_modelMatrix = this.modelMatrix
+  // }
+
   onWidthChange(width:number) {
     this.geometry.width = width
   }
@@ -195,40 +217,7 @@ export class Shape extends Leaflike {
   onHeightChange(height:number) {
     this.geometry.height = height
   }
-
-  onXChange(x:number) {
-    this.geometry.x = x
-  }
-
-  onYChange(y:number) {
-    this.geometry.y = y
-  }
-
-  private checkModelMatrix(model:Model) {
-    if (this.geometry.matrixNeedRefresh) {
-      const ax = 0.5 // anchor x
-      const ay = 0.5
-      const w = this.geometry.width
-      const h = this.geometry.height
-      const sx = 1 // scale x
-      const sy = 1
-      const sina = Math.sin(this.geometry.rotate)
-      const cosa = Math.cos(this.geometry.rotate)
-      const matrixArray:Length16Array = [
-        sx * cosa, sx * -sina, 0, 0,
-        sy * sina, sy * cosa, 0, 0,
-        0, 0, 1, 0,
-        this.geometry.x, this.geometry.y, 0, 1
-      ]
-      if (this.modelMatrix) {
-        this.modelMatrix.set(...matrixArray)
-      } else {
-        this.modelMatrix = new Matrix4(matrixArray)
-      }
-    }
-    (model as any).uniforms.u_modelMatrix = this.modelMatrix
-  }
-
+  
   public destroy() {
     this.subscriber = null
     this.geometry.destroy()

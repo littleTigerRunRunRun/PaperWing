@@ -1,7 +1,7 @@
 import { PWPoint, Point } from '@/common'
 import { Vector2 } from 'math.gl'
 import { Geometry } from '@luma.gl/engine'
-import { GetSetBound, GetSetNumber } from '../utils'
+import { GetSetNumber, GetSetSize } from '../utils'
 
 // 用于给各种Geometry实现用的接口
 export interface GeometryStandard {
@@ -55,12 +55,10 @@ class LumaGeometry extends Geometry {
   }
 }
 
-export interface BaseGeometry extends GetSetBound {}
+export interface BaseGeometry extends GetSetSize {}
 // 几何类型的基类
 @GetSetNumber('width')
 @GetSetNumber('height')
-@GetSetNumber('x')
-@GetSetNumber('y')
 export class BaseGeometry implements GeometryStandard {
   protected dimension:number
   public length:number = 0
@@ -74,21 +72,8 @@ export class BaseGeometry implements GeometryStandard {
   public strokePoints:Array<PWPoint> = []
   public strokeIndices:Array<number> = []
   public config:any
-  
-  public matrixNeedRefresh:boolean = true
+
   public geometryNeedRefresh:boolean = false
-
-  onXChange() { this.matrixNeedRefresh = true }
-  onYChange() { this.matrixNeedRefresh = true }
-
-  // rotate
-  protected _rotate:number = 0
-  public get rotate():number { return this._rotate }
-  public set rotate(rotate:number) {
-    if (rotate === undefined || this._rotate === rotate) return
-    this._rotate = rotate
-    this.matrixNeedRefresh = true
-  }
 
   /************ CONSTRUCTOR ************/
   constructor(config:any) {
@@ -100,9 +85,6 @@ export class BaseGeometry implements GeometryStandard {
 
   // 传入config然后赋值
   public _refreshConfig(config:any) {
-    // this.x = config.x
-    // this.y = config.y
-    this.rotate = config.rotate || 0
   }
 
   public _refreshGeometry = (config?:any) => {

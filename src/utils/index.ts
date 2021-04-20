@@ -5,6 +5,8 @@ export { Treelike, Leaflike, Branchlike, childlike, parentlike } from './abstrac
 // 装饰类
 export { GetSetNumber, GetSetBound, GetSetPosition, GetSetSize, GetSetRenderOrder } from './decorator/Number'
 export { GetSetAny } from './decorator/Common'
+export { MatrixManager2D, BuildMatrixManager2D } from './decorator/MatrixManager'
+export { ClassTypeName, SignClassTypeName } from './decorator/ClassTypeName'
 // 断言 
 export { isRenderable, isString } from './assert/index'
 

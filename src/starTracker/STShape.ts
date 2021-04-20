@@ -34,7 +34,9 @@ export class STShape extends Shape {
           out vec2 v_uv;
 
           void main() {
-            gl_Position = vec4((u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(positions.xyz, f1)).xyz, f1);
+            vec4 pos = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(positions.xyz, f1);
+            pos.y = -pos.y;
+            gl_Position = pos;
             v_uv = uv; // vec2(gl_Position.x, uv.y);
           }
         `,

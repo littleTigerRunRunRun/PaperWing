@@ -1,5 +1,5 @@
 import { BaseGroup } from './BaseGroup'
-import { GetSetNumber, GetSetBound } from '../utils'
+import { GetSetNumber, GetSetSize, MatrixManager2D, BuildMatrixManager2D, ClassTypeName, SignClassTypeName } from '../utils'
 import { Shape } from '../core/Shape'
 import { RGBAColorObject } from '@/common'
 
@@ -17,12 +17,12 @@ interface ContainerHelperConfig {
 }
 
 // 相比起一般的BaseGroup仅仅传递render，组织内容，它还具备一个实际的区域范围，类似于html里面的常规布局 display: inline
-export interface Container2DGroup extends GetSetBound {}
+export interface Container2DGroup extends GetSetSize, MatrixManager2D, ClassTypeName {}
 
+@SignClassTypeName('container2dGroup')
+@BuildMatrixManager2D()
 @GetSetNumber('width', 0)
 @GetSetNumber('height', 0)
-@GetSetNumber('x', 0)
-@GetSetNumber('y', 0)
 export class Container2DGroup extends BaseGroup {
   protected helperShape:Shape
 
@@ -44,21 +44,13 @@ export class Container2DGroup extends BaseGroup {
     }
   }
 
-  // render(...argus:Array<any>) {
-  //   super.render(...argus)
+  render(...argus:Array<any>) {
+    if (this.needRefreshMatrix) this.computeMatrix()
 
-  //   // console.log(this.helperShape)
-  //   // if (this.helperShape && isRenderable(this.helperShape)) this.helperShape.render(argus[0])
-  // }
+    super.render(...argus)
 
-  onXChange(x) {
-    // console.log('x change', x)
-    if (this.helperShape) this.helperShape.x = x
-  }
-
-  onYChange(y) {
-    // console.log('y change', y)
-    if (this.helperShape) this.helperShape.y = y
+    // console.log(this.helperShape)
+    // if (this.helperShape && isRenderable(this.helperShape)) this.helperShape.render(argus[0])
   }
 
   onWidthChange(width:number) {

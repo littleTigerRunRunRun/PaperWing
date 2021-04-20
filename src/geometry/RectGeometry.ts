@@ -43,10 +43,10 @@ export class RectGeometry extends BaseGeometry {
     const { width, height, stroke = 0 } = this.config
     this.stroke = stroke
 
-    const p1:PWPoint = { x: width * -0.5, y: height * -0.5, z: 0, w: 0 }
-    const p2:PWPoint = { x: width * 0.5, y: height * -0.5, z: 0, w: width }
-    const p3:PWPoint = { x: width * 0.5, y: height * 0.5, z: 0, w: width + height }
-    const p4:PWPoint = { x: width * -0.5, y: height * 0.5, z: 0, w: width * 2 + height }
+    const p1:PWPoint = { x: width * -0.5, y: height * 0.5, z: 0, w: width * 2 + height }
+    const p2:PWPoint = { x: width * 0.5, y: height * 0.5, z: 0, w: width + height }
+    const p3:PWPoint = { x: width * 0.5, y: height * -0.5, z: 0, w: width }
+    const p4:PWPoint = { x: width * -0.5, y: height * -0.5, z: 0, w: 0 }
 
     this.length = width * 2 + height * 2
     this.points.splice(0, this.points.length, p1, p2, p3, p4)

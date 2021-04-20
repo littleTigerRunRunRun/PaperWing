@@ -34,6 +34,7 @@ export class PureColorMaterial {
 
         void main() {
           gl_Position = vec4((u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(positions.xyz, f1)).xyz, f1);
+          gl_Position.y = -gl_Position.y;
           v_uv = gl_Position.xy * fhalf + fhalf;
         }
       ` : `
@@ -47,6 +48,7 @@ export class PureColorMaterial {
 
         void main() {
           gl_Position = vec4((u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(positions.xyz, f1)).xyz, f1);
+          gl_Position.y = -gl_Position.y;
           v_uv = gl_Position.xy * fhalf + fhalf;
         }
       `,

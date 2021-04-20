@@ -1,4 +1,4 @@
-import { Shape, Flex2DGroup, FlexParams, FlexItemConfig } from '../index'
+import { Shape, Flex2DGroup, Container2DGroup, Container2DGroupConfig, FlexParams, FlexItemConfig } from '../index'
 import { RGBAColorObject, Orientation } from '../common'
 import { GetSetNumber, GetSetSize } from '../utils'
 
@@ -48,7 +48,7 @@ const templates = []
 //   ]
 // }
 
-type ItemType = 'rect' | 'line'
+type StarTrackContainerType = 'flex' | 'equal'
 
 interface StarTrackItem {
   identity:number // 物件的唯一id
@@ -57,6 +57,7 @@ interface StarTrackItem {
   h:FlexParams
   v:FlexParams
   extends?:Orientation
+  type?:StarTrackContainerType
 }
 
 export interface StarTrackConfig {
@@ -68,7 +69,20 @@ export interface StarTrackConfig {
   flexs:Array<FlexItemConfig>
 }
 
-export class StarTrackSegment extends Shape {
+// 专用于StarTrack的定制Flex2DGroup，它和原本的Flex2DGroup有一些核心区别：
+// 1. 可以预制方向，并且添加的内容将会按照这个方向运行
+// 2. 不支持多方向，会尽量简化成一个单一flex关系
+interface StarTrackSegmentGroupConfig extends Container2DGroupConfig {
+
+}
+
+export class StarTrackSegmentGroup extends Flex2DGroup {
+  constructor({ width, height, helper, name }:StarTrackSegmentGroupConfig) {
+    super({ width, height, helper, name })
+  }
+}
+
+export class StarTrackEqualRatioGroup extends Container2DGroup {
 
 }
 
@@ -125,7 +139,7 @@ export class StarTrack {
   // starTrack的本质是一个单轴的flex容器
   protected createItems(items:Array<StarTrackItem>) {
     for (const item of items) {
-      const container = new Flex2DGroup({
+      const container = new (item.type === 'flex' ? StarTrackSegmentGroup : StarTrackEqualRatioGroup)({
         name: `starItem_${item.identity}`,
         width: item.h.basic,
         height: item.v.basic,

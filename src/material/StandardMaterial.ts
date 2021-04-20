@@ -87,6 +87,7 @@ export class StandardMaterial {
 
         void main() {
           gl_Position = vec4((u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(positions.xyz, f1)).xyz, f1);
+          gl_Position.y = -gl_Position.y;
           v_uv = uv;
         }
       ` : `
@@ -101,6 +102,7 @@ export class StandardMaterial {
 
         void main() {
           gl_Position = vec4((u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(positions.xyz, f1)).xyz, f1);
+          gl_Position.y = -gl_Position.y;
           v_uv = uv;
         }
       `),

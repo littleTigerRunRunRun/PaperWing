@@ -59,6 +59,7 @@ function main(canvas: HTMLCanvasElement) {
     // 星轨容器
     const white = { r: 1, g: 1, b: 1, a: 0.1 }
     const red = { r: 1, g: 0.5, b: 0.4, a: 0.1 }
+
     const rectStarTrack:StarTrackConfig = {
       name: '', // 这个不必要
       title: '四方型边框',
@@ -74,13 +75,13 @@ function main(canvas: HTMLCanvasElement) {
           h: { grow: 0, shrink: 0, basic: 40 },
           v: { basic: 40 }
         },
-        { identity: 2, desc: '上侧中间的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
+        { identity: 2, type: 'flex', desc: '上侧中间的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
         { identity: 3, desc: '右上角的转角块', fill: white, h: { basic: 40 }, v: { basic: 40 } },
         { identity: 4, desc: '左下角的转角块', fill: white, h: { basic: 40 }, v: { basic: 40} },
-        { identity: 5, desc: '下侧中间的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
+        { identity: 5, type: 'flex', desc: '下侧中间的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
         { identity: 6, desc: '右下角的转角块', fill: white, h: { basic: 40 }, v: { basic: 40} },
-        { identity: 9, desc: '左侧的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
-        { identity: 10, desc: '右侧的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } }
+        { identity: 9, type: 'flex', desc: '左侧的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
+        { identity: 10, type: 'flex', desc: '右侧的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } }
       ],
       // squeeze的放置顺序代表了执行顺序
       // 多个flex对物体的叠加效果还需要调整，目前不太符合预期
@@ -151,13 +152,12 @@ function main(canvas: HTMLCanvasElement) {
     brush.render()
 
     // 绘制画笔时，默认要以2X比例绘制
-    const line1 = new STShape({
-      name: 'line1',
-      start: { x: 0, y: 0 },
-      end: { x: 200, y: 0 },
-      width: 40
-    })
-    borderTop.add(line1)
-    console.log(borderTop)
+    // const line1 = new STShape({
+    //   name: 'line1',
+    //   start: { x: 0, y: 0 },
+    //   end: { x: 200, y: 0 },
+    //   width: 80
+    // })
+    // borderTop.add(line1)
   })
 }

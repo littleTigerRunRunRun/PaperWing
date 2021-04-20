@@ -1,5 +1,5 @@
 import { Matrix4 } from 'math.gl'
-import { Length16Array } from '@/common'
+import { Length16NumberArray } from '@/common'
 
 export interface Viewer {
   viewMatrix:Matrix4
@@ -34,7 +34,7 @@ export class BaseViewer implements Viewer {
     this.glWidth = width
     this.glHeight = height
 
-    const matrix:Length16Array = [
+    const matrix:Length16NumberArray = [
       2/width, 0, 0, 0,
       0, 2/height, 0, 0,
       0, 0, 1, 0,

@@ -22,12 +22,16 @@ export interface PWPoint {
   w:number // w不等于顶点着色器输出的GL_position中的w值，而是表示的点在连线中所在位置（起始点到这个点的距离（非直线距离）/路径总长度）
 }
 
-export type Length16Array = [
+// 用于描述4 * 4的矩阵
+export type Length16NumberArray = [
   number, number, number, number,
   number, number, number, number,
   number, number, number, number,
   number, number, number, number
 ]
+
+// scale/translate等两个方向上的二元数组，但是又不太合适是Vector2
+export type Length2NumberArray = [number, number]
 
 export type RGBAColorObject = {
   r:number,
