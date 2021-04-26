@@ -87,10 +87,10 @@ export class Atom extends Leaflike {
     const material = {
       type: 'standard',
       texture: '',
-      color: { r: 0, g: 0, b: 0, a: 1 }
+      color: [0, 0, 0, 1]
     }
     if (this.texture) material.texture = this.texture
-    if (this.grey) material.color.r = material.color.g = material.color.b = this.grey
+    if (this.grey) material.color[0] = material.color[1] = material.color[2] = this.grey
     this.shape = new AtomShape({
       name: this.name,
       atom: this,

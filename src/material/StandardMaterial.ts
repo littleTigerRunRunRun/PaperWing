@@ -20,6 +20,18 @@ export interface StandardMaterialConfig {
 
 // 标准通用材质
 export class StandardMaterial {
+  public get r():number { return this.color[0] }
+  public set r(r:number) { this.color[0] = r }
+
+  public get g():number { return this.color[1] }
+  public set g(g:number) { this.color[1] = g }
+
+  public get b():number { return this.color[2] }
+  public set b(b:number) { this.color[2] = b }
+  
+  public get a():number { return this.color[3] }
+  public set a(a:number) { this.color[3] = a }
+  
   private _color:RGBAColorObject
   get color() { return this._color }
   set color(color:RGBAColorObject) {
@@ -57,7 +69,7 @@ export class StandardMaterial {
   public defines:Dictionary<any>
   private subscriber:Subscriber
 
-  constructor({ color = { r: 0, g: 0, b: 0, a: 0 }, texture = null, normalMap = null, uniformTextures = [], fs = '', vs = '', uniforms = null, defines = null }:StandardMaterialConfig) {
+  constructor({ color = [0, 0, 0, 0], texture = null, normalMap = null, uniformTextures = [], fs = '', vs = '', uniforms = null, defines = null }:StandardMaterialConfig) {
     this.color = color
     this.texture = texture
     this.normalMap = normalMap
@@ -159,7 +171,7 @@ export class StandardMaterial {
     this.createTexture()
 
     return Object.assign({
-      u_color: [this.color.r, this.color.g, this.color.b, this.color.a],
+      u_color: this.color,
       u_texture: this.textureObject
     }, this.uniforms)
   }

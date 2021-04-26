@@ -1,24 +1,26 @@
-import { GLContext, MaterialReceipt } from '@/common'
+import { GLContext, MaterialReceipt, RGBAColorObject } from '@/common'
 
 export interface PureColorMaterialConfig {
   type:string
-  r:number
-  g:number
-  b:number
-  a:number
+  color:RGBAColorObject
 }
 
 export class PureColorMaterial {
-  public r:number = 0
-  public g:number = 0
-  public b:number = 0
-  public a:number = 0
+  public get r():number { return this.color[0] }
+  public set r(r:number) { this.color[0] = r }
 
-  constructor({ r, g, b, a }: PureColorMaterialConfig) {
-    this.r = r
-    this.g = g
-    this.b = b
-    this.a = a
+  public get g():number { return this.color[1] }
+  public set g(g:number) { this.color[1] = g }
+
+  public get b():number { return this.color[2] }
+  public set b(b:number) { this.color[2] = b }
+  
+  public get a():number { return this.color[3] }
+  public set a(a:number) { this.color[3] = a }
+
+  private color:RGBAColorObject
+  constructor({ color }: PureColorMaterialConfig) {
+    this.color = color
   }
   
   public getReceipt(is2:boolean, gl:GLContext):MaterialReceipt {
@@ -78,7 +80,7 @@ export class PureColorMaterial {
 
   public getUniforms() {
     return {
-      u_color: [this.r, this.g, this.b, this.a]
+      u_color: this.color
     }
   }
 

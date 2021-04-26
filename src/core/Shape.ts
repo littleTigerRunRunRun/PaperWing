@@ -117,7 +117,9 @@ export class Shape extends Leaflike {
   }
   
   // give uniforms
-  public render({ uniforms = {}, framebuffer = null }:RenderParams) {
+  public render(argus?:RenderParams) {
+    const { uniforms = {}, framebuffer = null } = (argus || {})
+
     if (!this.visible) return
     if (!this.gl) {
       console.error('no gl ready for shape render!')
@@ -133,7 +135,9 @@ export class Shape extends Leaflike {
     if (this.geometry.geometryNeedRefresh) this.geometry._refreshGeometry()
 
     if (this.material) {
-      if (this.geometry.geometryNeedRefresh) this.strokeModel.setGeometry(this.geometry.geometry)
+      if (this.geometry.geometryNeedRefresh) {
+        this.model.setGeometry(this.geometry.geometry)
+      }
 
       Object.assign(uniforms, this.material.getUniforms())
       for (const key in uniforms) {
@@ -143,9 +147,7 @@ export class Shape extends Leaflike {
       this.model.draw(drawTarget)
     }
     if (this.fill) {
-      if (this.geometry.geometryNeedRefresh) {
-        this.fillModel.setGeometry(this.geometry.geometry)
-      }
+      if (this.geometry.geometryNeedRefresh) this.fillModel.setGeometry(this.geometry.geometry)
       
       const fillUniforms = Object.assign({}, uniforms, this.fill.getUniforms())
       for (const key in fillUniforms) {

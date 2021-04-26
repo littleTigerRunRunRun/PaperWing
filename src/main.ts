@@ -7,7 +7,8 @@ import {
   ComputeTexture
 } from './index'
 import * as dat from 'dat.gui'
-import { StarTrack, StarTrackConfig, Brush, Atom, STShape } from './starTracker'
+import { StarTrack, StarTrackConfig, Brush, Atom, StarTrackSegmentGroup } from './starTracker'
+import { RGBAColorObject } from './common'
 
 interface EntryConfig {
   canvas: HTMLCanvasElement
@@ -50,15 +51,17 @@ function main(canvas: HTMLCanvasElement) {
         solid: '/assets/atom/solid.png',
         linearGradient: '/assets/atom/linearGradient.png'
       }
-    }
+    },
+    autoTick: false
   }) // 二维内容关闭深度测试
+  ;(window as any).scene = scene
   const viewer:OrthoViewer = new OrthoViewer({ far: 4000 })
   scene.viewer= viewer
 
   scene.onReady(() => {
     // 星轨容器
-    const white = { r: 1, g: 1, b: 1, a: 0.1 }
-    const red = { r: 1, g: 0.5, b: 0.4, a: 0.1 }
+    const white:RGBAColorObject = [1, 1, 1, 0.1]
+    const red:RGBAColorObject = [1, 0.5, 0.4, 0.1]
 
     const rectStarTrack:StarTrackConfig = {
       name: '', // 这个不必要
@@ -75,13 +78,13 @@ function main(canvas: HTMLCanvasElement) {
           h: { grow: 0, shrink: 0, basic: 40 },
           v: { basic: 40 }
         },
-        { identity: 2, type: 'flex', desc: '上侧中间的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
+        { identity: 2, type: 'flex', direction: 'right', desc: '上侧中间的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
         { identity: 3, desc: '右上角的转角块', fill: white, h: { basic: 40 }, v: { basic: 40 } },
         { identity: 4, desc: '左下角的转角块', fill: white, h: { basic: 40 }, v: { basic: 40} },
-        { identity: 5, type: 'flex', desc: '下侧中间的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
+        { identity: 5, type: 'flex', direction: 'left', desc: '下侧中间的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
         { identity: 6, desc: '右下角的转角块', fill: white, h: { basic: 40 }, v: { basic: 40} },
-        { identity: 9, type: 'flex', desc: '左侧的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
-        { identity: 10, type: 'flex', desc: '右侧的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } }
+        { identity: 9, type: 'flex', direction: 'top', desc: '左侧的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } },
+        { identity: 10, type: 'flex', direction: 'bottom', desc: '右侧的可伸缩部分', fill: red, h: { basic: 40, grow: 1, shrink: 1 }, v: { basic: 40, grow: 1, shrink: 1 } }
       ],
       // squeeze的放置顺序代表了执行顺序
       // 多个flex对物体的叠加效果还需要调整，目前不太符合预期
@@ -132,9 +135,9 @@ function main(canvas: HTMLCanvasElement) {
     }
     const st = new StarTrack(rectStarTrack)
     scene.add(st.container)
-
-    const borderTop = st.getChildByIdentity(2)
+    console.log(st)
     
+    // 绘制画笔时，默认要以2X比例绘制
     const brush = new Brush({
       name: 'brush_1', width: 10, height: 10, subscriber: scene.getSubscriber()
     })
@@ -151,13 +154,13 @@ function main(canvas: HTMLCanvasElement) {
     brush.add(atom1)
     brush.render()
 
-    // 绘制画笔时，默认要以2X比例绘制
-    // const line1 = new STShape({
-    //   name: 'line1',
-    //   start: { x: 0, y: 0 },
-    //   end: { x: 200, y: 0 },
-    //   width: 80
-    // })
-    // borderTop.add(line1)
+    const borderTop = st.getChildByIdentity(2) as StarTrackSegmentGroup
+    // borderTop.addSegment({ name: 't1', type: 'relative', flex: [20, 1], fill: [1, 0, 0, 0.8 ], thickness: 30, baseline: 'middle', verticalOffset: 0 })
+    // borderTop.addSegment({ name: 't2', type: 'relative', flex: [60, 2], fill: [0, 1, 0, 0.8 ], thickness: 40, baseline: 'middle', verticalOffset: 0 })
+    // borderTop.addSegment({ name: 't3', type: 'relative', flex: [20, 1], fill: [0, 0, 1, 0.8 ], thickness: 30, baseline: 'middle', verticalOffset: 0 })
+    borderTop.addSegment({ name: 't1', type: 'absolute', psStart: [5, 0], psWidth: [90, 0], brush: 'brush_1', thickness: 30, baseline: 'middle', verticalOffset: 0 })
+    borderTop.sortRelatives()
+
+    scene.next()
   })
 }

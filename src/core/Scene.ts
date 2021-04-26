@@ -12,7 +12,8 @@ interface SceneInitConifg {
   stats?:boolean
   options?:AnimationLoopStartOptions
   glParams?:GLParams
-  assets?:Assets
+  assets?:Assets,
+  autoTick?:boolean
 }
 
 // export interface ListenGL {
@@ -37,7 +38,7 @@ export class Scene extends Treelike {
   public getSubscriber() { return this.subscriber }
   public resource:Resource
   
-  constructor({ canvas, options = {}, stats = false, glParams = {}, assets = null }: SceneInitConifg) {
+  constructor({ canvas, options = {}, stats = false, glParams = {}, assets = null, autoTick = true }: SceneInitConifg) {
     super()
     
     this.canvas = canvas
@@ -49,7 +50,7 @@ export class Scene extends Treelike {
 
     this.loop = new RenderLoop({ canvas, subscriber: this.subscriber, options, glParams })
 
-    this.renderer = new Renderer({ scene: this, stats })
+    this.renderer = new Renderer({ scene: this, stats, autoTick })
   
     // 综合resouce和gl准备好的钩子
     this.subscriber.next('getGl', this.onGLGet)
@@ -87,6 +88,10 @@ export class Scene extends Treelike {
     child.setSubscriber(this.subscriber)
 
     return index
+  }
+
+  public next() {
+    this.renderer.needRefresh = true
   }
 
   public destroy() {

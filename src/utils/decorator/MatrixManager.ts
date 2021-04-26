@@ -22,10 +22,11 @@ export class MatrixManager2D {
 }
 
 // 目前暂且没有参数
-export function BuildMatrixManager2D() {
+export function BuildMatrixManager2D(spaceJust = false) {
   return function<T extends {new(...args:any[]):{}}>(constructor:T) {
     const defines = {
       needRefreshMatrix: { value: true, writable: true },
+      spaceJust: { value: spaceJust, writable: true },
       _matrix: { value: null, writable: true },
       computeMatrix: {
         value: function() {
@@ -53,12 +54,7 @@ export function BuildMatrixManager2D() {
           if (this.parent && this.parent._matrix) {
             // if (this.classTypeName === 'shape') console.log(this._matrix, this.parent._matrix)
             this._matrix.multiplyLeft(this.parent._matrix)
-            // this._matrix.multiplyLeft(new Matrix4([
-            //   1, 0, 0, 0,
-            //   0, 1, 0, 0,
-            //   0, 0, 1, 0,
-            //   -this.parent.width * 0.5, -this.parent.height * 0.5, 0, 0
-            // ]))
+            if (this.spaceJust) this._matrix.multiplyLeft([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -this.parent.width * 0.5, -this.parent.height * 0.5, 0, 1])
             // if (this.classTypeName === 'shape') console.log(this._matrix)
           } // this._matrix.mutiplyLeft(this.parent._matrix)
         },

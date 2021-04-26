@@ -1,6 +1,7 @@
-import { Shape, Flex2DGroup, Container2DGroup, Container2DGroupConfig, FlexParams, FlexItemConfig } from '../index'
-import { RGBAColorObject, Orientation } from '../common'
+import { Flex2DGroup, Container2DGroup, Container2DGroupConfig, FlexParams, FlexItemConfig } from '../index'
+import { RGBAColorObject, Extend, Vertical, Direction, Orientation, OrientationVector, FlexNumber, PercentStaticNumber } from '../common'
 import { GetSetNumber, GetSetSize } from '../utils'
+import { STShape } from './STShape'
 
 export { Brush, Atom } from './Brush'
 export { STShape } from './STShape'
@@ -56,8 +57,9 @@ interface StarTrackItem {
   fill?:RGBAColorObject // 区域表示的颜色
   h:FlexParams
   v:FlexParams
-  extends?:Orientation
+  extends?:Extend
   type?:StarTrackContainerType
+  [propName:string]:any
 }
 
 export interface StarTrackConfig {
@@ -73,24 +75,187 @@ export interface StarTrackConfig {
 // 1. 可以预制方向，并且添加的内容将会按照这个方向运行
 // 2. 不支持多方向，会尽量简化成一个单一flex关系
 interface StarTrackSegmentGroupConfig extends Container2DGroupConfig {
-
+  direction: Orientation // 以北方作为0度，分360度表示
+  segs?:Array<StarTrackSegmentConfig>
 }
 
+type SegmentType = 'relative' | 'absolute' | 'sticky'
+type StickyWay = 'start' | 'end' | 'center'
+
+interface StarTrackSegmentConfig {
+  name:string
+  type?:SegmentType // 是flex挤压，还是依附于某个位置
+  baseline?:Vertical // 线段基线,表示线段对准的基线
+  verticalOffset?:number // 纵向基于基线的偏移
+  thickness?:number
+  flex?:FlexNumber // [percentLength, numberLength, flexRate] Length = percentLength * parentLength + numberLength + flexRate + marginSummary
+  psWidth?:PercentStaticNumber
+  // case: type === 'relative'
+  order?:number // 对于relative类型的，需要先排序，后处理
+  // case: type === 'absolute'
+  psStart?:PercentStaticNumber // 根据方向的起始位置，数据结构虽然相似，但是start和end其实是[percentLength, staticLength]
+  psEnd?:PercentStaticNumber // 根据方向的结束位置，start和end同时设置时，只有start会生效
+  // case: type === 'sticky'
+  stickyTarget?:string // 粘附对象的name
+  stickyWay?:StickyWay // 粘附方式
+  // style
+  fill?:RGBAColorObject
+  brush?:string
+}
+
+// 主要用于线段的有向flex容器
 export class StarTrackSegmentGroup extends Flex2DGroup {
-  constructor({ width, height, helper, name }:StarTrackSegmentGroupConfig) {
+  private length:number = 0
+  private thickness:number = 0
+  private lengthChanged:boolean = false
+  private direction:Direction = 'h'
+  private directionVector:FlexNumber = [0, 0]
+
+  private relatives:Array<STShape> = []
+  private relativesFlexSummay:Array<FlexNumber> = []
+
+  private absolutes:Array<STShape> = []
+  private stickys:Array<STShape> = []
+  constructor({ width, height, helper, name, segs, direction }:StarTrackSegmentGroupConfig) {
     super({ width, height, helper, name })
+
+    this.directionVector = OrientationVector[direction] as FlexNumber
+    if (direction === 'left' || direction === 'right') this.direction = 'h'
+    else this.direction = 'v'
+
+    if (segs) segs.forEach((seg) => this.addSegment(seg))
+  }
+
+  onWidthChange(width) {
+    super.onWidthChange(width)
+    this.lengthChanged = true
+  }
+
+  onHeightChange(height) {
+    super.onHeightChange(height)
+    this.lengthChanged = true
+  }
+
+  render(...argus:Array<any>) {
+    // compute the length
+    if (this.lengthChanged) {
+      if (this.direction === 'v') {
+        this.length = this.height
+        this.thickness = this.width
+      } else {
+        this.length = this.width
+        this.thickness = this.height
+      }
+    }
+
+    // relative
+    if (this.relatives.length > 0) {
+      const summary = this.relativesFlexSummay[this.relativesFlexSummay.length - 1]
+      const unit = (this.length - summary[0]) / summary[1]
+      for (let i = 0; i < this.relatives.length; i++) {
+        const seg = this.relatives[i]
+  
+        // const
+        seg.offsetX = this.relativesFlexSummay[i][0] + this.relativesFlexSummay[i][1] * unit
+        seg.setOffsetY(this.height)
+        seg.length = this.relativesFlexSummay[i + 1][0] - this.relativesFlexSummay[i][0] + (this.relativesFlexSummay[i + 1][1] - this.relativesFlexSummay[i][1]) * unit
+      }
+    }
+
+    if (this.absolutes.length > 0) {
+      for (let i = 0; i < this.absolutes.length; i++) {
+        const seg = this.absolutes[i]
+
+        seg.offsetX = (seg.psStart || seg.psEnd)[0] * this.width / 100 + (seg.psStart || seg.psEnd)[1]
+        seg.setOffsetY(this.height)
+        seg.length = seg.psWidth[0] * this.width / 100 + seg.psWidth[1]
+        console.log(seg)
+      }
+    }
+
+    super.render(...argus)
+  }
+
+  // 向已经确定了方向的容器中添加一条线段
+  // 这条线段可以有两种布局方式，一种是类似于flex的挤压，可以认为在文档流里面
+  // 另一种则是依附于某个位置，这个位置可以是整体容器的百分比，也可以是某个线段的头或者尾
+  addSegment(seg:StarTrackSegmentConfig) {
+    switch (seg.type) {
+      case 'relative': this.addRelativeSegment(seg);break
+      case 'absolute': this.stickSegmentAtPosition(seg);break
+      case 'sticky': this.stickSegmentToAnother(seg);break
+    }
+  }
+
+  stickSegmentToAnother(seg:StarTrackSegmentConfig) {
+
+  }
+
+  stickSegmentAtPosition(seg:StarTrackSegmentConfig) {
+    const sp = new STShape({
+      name: seg.name,
+      start: { x: 0, y: 0 },
+      end: { x: 0, y: 0 },
+      thickness: seg.thickness || 10,
+      psWidth: seg.psWidth,
+      psStart: seg.psStart,
+      psEnd: seg.psEnd,
+      direction: this.directionVector,
+      fill: seg.fill,
+      brush: seg.brush,
+      baseline: seg.baseline,
+      verticalOffset: seg.verticalOffset
+    })
+    this.absolutes.push(sp)
+    this.add(sp)
+  }
+
+  addRelativeSegment(seg:StarTrackSegmentConfig) {
+    const sp = new STShape({
+      name: seg.name,
+      start: { x: 0, y: 0 },
+      end: { x: 0, y: 0 },
+      thickness: seg.thickness || 10,
+      order: seg.order,
+      flex: seg.flex,
+      direction: this.directionVector,
+      fill: seg.fill,
+      brush: seg.brush,
+      baseline: seg.baseline,
+      verticalOffset: seg.verticalOffset
+    })
+    this.relatives.push(sp)
+    this.add(sp)
+  }
+
+  sortRelatives() {
+    this.relatives.sort((a, b) => ((a.order || 0) - (b.order || 0)))
+    this.relatives.map((seg, index) => {
+      // 这里的summary使用了Summed Area Tables，为了加速求和计算的同时保留自己的值
+      this.relativesFlexSummay[index] = [0, 0]
+      this.relativesFlexSummay[index][0] = seg.flex[0] + (index === 0 ? 0 : this.relativesFlexSummay[index - 1][0])
+      this.relativesFlexSummay[index][1] = seg.flex[1] + (index === 0 ? 0 : this.relativesFlexSummay[index - 1][1])
+    })
+    this.relativesFlexSummay.unshift([0, 0])
   }
 }
 
-export class StarTrackEqualRatioGroup extends Container2DGroup {
+// 主要用于星轨四个角的等比缩放容器
+interface StarTrackEqualRatioGroupConfig extends Container2DGroupConfig {
 
+}
+
+export class StarTrackEqualRatioGroup extends Container2DGroup {
+  constructor({ width, height, helper, name }:StarTrackEqualRatioGroupConfig) {
+    super({ width, height, helper, name })
+  }
 }
 
 export interface StarTrack extends GetSetSize {}
 
 @GetSetNumber('width', 0)
 @GetSetNumber('height', 0)
-export class StarTrack {
+export class StarTrack{
   public name:string
   public title:string
 
@@ -139,7 +304,14 @@ export class StarTrack {
   // starTrack的本质是一个单轴的flex容器
   protected createItems(items:Array<StarTrackItem>) {
     for (const item of items) {
-      const container = new (item.type === 'flex' ? StarTrackSegmentGroup : StarTrackEqualRatioGroup)({
+      const container = item.type === 'flex' ? new StarTrackSegmentGroup({
+        name: `starItem_${item.identity}`,
+        width: item.h.basic,
+        height: item.v.basic,
+        helper: item.fill ? { fill: item.fill } : null,
+        direction: item.direction
+      }) : 
+      new StarTrackEqualRatioGroup({
         name: `starItem_${item.identity}`,
         width: item.h.basic,
         height: item.v.basic,

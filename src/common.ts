@@ -30,23 +30,25 @@ export type Length16NumberArray = [
   number, number, number, number
 ]
 
-// scale/translate等两个方向上的二元数组，但是又不太合适是Vector2
-export type Length2NumberArray = [number, number]
+export type XYNumber = [number, number] // [x, y]
 
-export type RGBAColorObject = {
-  r:number,
-  g:number,
-  b:number,
-  a:number
-}
+export type FlexNumber = [number, number] // [baseNumber, flexRate]
+
+export type PercentStaticNumber = [number, number] // [percentNumber, staticNumber]
+
+export type RGBAColorObject = [number, number, number, number]
 
 export type Direction = 'v' | 'h'
 
-export interface Orientation {
-  left?:number
-  right?:number
-  top?:number
-  bottom?:number
+export type Vertical = 'top' | 'bottom' | 'middle'
+
+export type Orientation = 'top' | 'right' | 'bottom' | 'left'
+
+export const OrientationVector = {
+  top: [0, 1],
+  right: [1, 0],
+  bottom: [0, -1],
+  left: [-1, 0]
 }
 
 export interface MaterialReceipt {
@@ -54,4 +56,11 @@ export interface MaterialReceipt {
   fs:string
   uniforms:Dictionary<any>
   defines?:Dictionary<any>
+}
+
+export interface Extend {
+  left?:number
+  right?:number
+  top?:number
+  bottom?:number
 }

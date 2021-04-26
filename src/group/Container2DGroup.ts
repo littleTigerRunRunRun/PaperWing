@@ -36,8 +36,8 @@ export class Container2DGroup extends BaseGroup {
         name: 'test',
         geometry: { type: 'rect', width, height, stroke: helper.strokeWidth || 0, x: this.x, y: this.y, rotate: 0 }
       }
-      if (helper.fill) shapeConfig.fill = Object.assign({ type: 'pure' }, helper.fill)
-      if (helper.stroke) shapeConfig.stroke = Object.assign({ type: 'pure' }, helper.stroke)
+      if (helper.fill) shapeConfig.fill = Object.assign({ type: 'pure' }, { color: helper.fill })
+      if (helper.stroke) shapeConfig.stroke = Object.assign({ type: 'pure' }, { color: helper.stroke })
 
       this.helperShape = new Shape(shapeConfig)
       this.add(this.helperShape)

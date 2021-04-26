@@ -8,6 +8,7 @@ import { resizeGLContext } from '@luma.gl/gltools'
 interface RendererConfig {
   scene:Scene
   stats:boolean
+  autoTick?:boolean
 }
 
 // viewport 控制
@@ -15,14 +16,17 @@ export class Renderer {
   private scene:Scene
   private gl:GLContext
   private stats:Stats
+  private autoTick:boolean
+  public needRefresh:boolean = true
 
-  constructor({ scene, stats }:RendererConfig) {
+  constructor({ scene, stats, autoTick = true }:RendererConfig) {
     this.scene = scene
     if (stats) {
       this.stats = new Stats()
       document.body.appendChild(this.stats.dom)
     }
 
+    this.autoTick = autoTick
     this.scene.tick(this.tick)
     this.scene.once('getGl', this.getGl)
   }
@@ -35,10 +39,12 @@ export class Renderer {
     clear(this.gl, { color: [0, 0, 0, 1], depth: true })
   }
 
-  private tick = () => {
+  public tick = () => {
+    if (!this.needRefresh) return
     if (!this.gl) return
     if (this.stats) this.stats.update()
     // this.clear()
+    if (!this.autoTick) this.needRefresh = false
     const viewer = this.scene.viewer
     
     resizeGLContext(this.gl)
