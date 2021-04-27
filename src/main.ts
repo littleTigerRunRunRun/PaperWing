@@ -139,26 +139,70 @@ function main(canvas: HTMLCanvasElement) {
     
     // 绘制画笔时，默认要以2X比例绘制
     const brush = new Brush({
-      name: 'brush_1', width: 10, height: 10, subscriber: scene.getSubscriber()
+      name: 'brush_1', width: 20, height: 16, subscriber: scene.getSubscriber()
     })
 
-    const atom1 = new Atom({
-      name: 'a_1_1',
-      type: 'solid',
-      width: 10,
-      height: 10,
-      x: 0,
-      y: 0,
-      grey: 1
-    })
+    const atom1 = new Atom({ name: 'a_1_1', type: 'solid', width: 20, height: 4, x: 0, y: -5, grey: 1 })
     brush.add(atom1)
+    const atom2 = new Atom({ name: 'a_1_2', type: 'solid', width: 20, height: 4, x: 0, y: 5, grey: 1 })
+    brush.add(atom2)
     brush.render()
+
+    // const rect1 = new Shape({
+    //   name: 'rect1',
+    //   geometry: { type: 'rect', width: 20, height: 16 },
+    //   material: {
+    //     type: 'standard',
+    //     color: [0.8, 0.6, 0.4, 1.0],
+    //     texture: 'brush_1',
+    //     vs: `#version 300 es
+    //       layout (location = 0) in vec4 positions;
+    //       layout (location = 1) in vec2 uv;
+
+    //       uniform mat4 u_projectionMatrix;
+    //       uniform mat4 u_viewMatrix;
+    //       uniform mat4 u_modelMatrix;
+    //       uniform float u_textureHeight;
+
+    //       out vec2 v_uv;
+
+    //       void main() {
+    //         gl_Position = vec4((u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(positions.xyz, f1)).xyz, f1);
+    //         gl_Position.y = -gl_Position.y;
+    //         v_uv = uv; // vec2(gl_Position.x, uv.y);
+    //       }
+    //     `,
+    //     fs: `#version 300 es
+          
+    //       uniform vec4 u_color;
+    //       uniform sampler2D u_texture;
+  
+    //       in vec2 v_uv;
+  
+    //       out vec4 fragColor;
+  
+    //       void main() {
+    //         #if (RENDER_CHANNEL == 100) // 仅仅开启alpha通道
+    //           fragColor = texture2D(u_texture, v_uv);
+    //         #endif
+    //       }
+    //     `,
+    //     uniforms: {
+    //       u_textureHeight: 10
+    //     },
+    //     defines: {
+    //       // 星轨的渲染通道控制，alpha通道/height通道/颜色通道
+    //       RENDER_CHANNEL: 100
+    //     }
+    //   }
+    // })
+    // scene.add(rect1)
 
     const borderTop = st.getChildByIdentity(2) as StarTrackSegmentGroup
     // borderTop.addSegment({ name: 't1', type: 'relative', flex: [20, 1], fill: [1, 0, 0, 0.8 ], thickness: 30, baseline: 'middle', verticalOffset: 0 })
     // borderTop.addSegment({ name: 't2', type: 'relative', flex: [60, 2], fill: [0, 1, 0, 0.8 ], thickness: 40, baseline: 'middle', verticalOffset: 0 })
     // borderTop.addSegment({ name: 't3', type: 'relative', flex: [20, 1], fill: [0, 0, 1, 0.8 ], thickness: 30, baseline: 'middle', verticalOffset: 0 })
-    borderTop.addSegment({ name: 't1', type: 'absolute', psStart: [5, 0], psWidth: [90, 0], brush: 'brush_1', thickness: 30, baseline: 'middle', verticalOffset: 0 })
+    borderTop.addSegment({ name: 't1', type: 'absolute', psStart: [5, 0], psWidth: [90, 0], brush: 'brush_1', brushWidth: 8, thickness: 40, baseline: 'middle', verticalOffset: 0, heightMap: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.008,0.016,0.024,0.032,0.04,0.048,0.056,0.064,0.072,0.08,0.088,0.096,0.104,0.112,0.12,0.128,0.136,0.144,0.152,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.16,0.152,0.144,0.136,0.128,0.12,0.112,0.104,0.096,0.088,0.08,0.072,0.064,0.056,0.048,0.04,0.032,0.024,0.016,0.008,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] })
     borderTop.sortRelatives()
 
     scene.next()

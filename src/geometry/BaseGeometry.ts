@@ -137,7 +137,7 @@ export class BaseGeometry implements GeometryStandard {
     this.uvs.forEach((uv) => { uvs.push(...[uv.x, uv.y]) })
 
     if (!this.geometry) this.geometry = new LumaGeometry({ positions, normals, uvs, indices: this.indices })
-    else this.geometry.rebuild({ positions, normals, indices: this.indices })
+    else this.geometry.rebuild({ positions, normals, uvs, indices: this.indices })
 
     if (this.stroke) {
       const strokePositions = []

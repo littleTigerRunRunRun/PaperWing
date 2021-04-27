@@ -12,10 +12,12 @@ interface STShapeConfig {
   psStart?:PercentStaticNumber
   psEnd?:PercentStaticNumber
   fill?:RGBAColorObject
-  brush:string
+  brush?:string
+  brushWidth?:number
   direction:XYNumber
   baseline?:Vertical
   verticalOffset?:number
+  heightMap?:Array<number>
 }
 
 const alignStrategy = {
@@ -43,7 +45,7 @@ export class STShape extends Shape {
   public baseline:Vertical
   public verticalOffset:number
 
-  constructor({ name, start, end, thickness, order = 0, flex, psWidth, psStart, psEnd, fill = [1, 1, 1, 1], brush, direction = [1, 0], baseline = 'middle', verticalOffset = 0 }:STShapeConfig) {
+  constructor({ name, start, end, thickness, order = 0, flex, psWidth, psStart, psEnd, fill = [1, 1, 1, 1], brush, brushWidth = 4, direction = [1, 0], baseline = 'middle', verticalOffset = 0, heightMap = [0, 0] }:STShapeConfig) {
     super({
       name,
       geometry: {
@@ -70,7 +72,7 @@ export class STShape extends Shape {
             vec4 pos = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(positions.xyz, f1);
             pos.y = -pos.y;
             gl_Position = pos;
-            v_uv = uv; // vec2(gl_Position.x, uv.y);
+            v_uv = uv;
           }
         `,
         fs: `#version 300 es
@@ -78,16 +80,23 @@ export class STShape extends Shape {
           uniform vec4 u_color;
           uniform sampler2D u_texture;
           uniform float u_brushWidthRate;
+          uniform float[HEIGHT_MAP_LENGTH] u_heightMap;
   
           in vec2 v_uv;
   
           out vec4 fragColor;
   
           void main() {
+            float heightPos = v_uv.x * float(HEIGHT_MAP_LENGTH);
+            float leftValue = floor(heightPos);
+            float rightValue = ceil(heightPos);
+            float heightOffset = mix(u_heightMap[int(leftValue)], u_heightMap[int(rightValue)], heightPos - leftValue);
+
             #if (RENDER_CHANNEL == 100) // 仅仅开启alpha通道
-              float accuracy = 0.0001;
-              if (v_uv.y < fhalf - u_brushWidthRate - accuracy ||v_uv.y > fhalf + u_brushWidthRate + accuracy) fragColor = vec4(f0);
-              else fragColor = vec4(f1); // texture2D(u_texture, vec2(v_uv.x, (v_uv.y - fhalf + u_brushWidthRate) / max(u_brushWidthRate, f1) * f2));
+              // float accuracy = 0.0001;
+              // if (v_uv.y < fhalf - u_brushWidthRate - accuracy ||v_uv.y > fhalf + u_brushWidthRate + accuracy) fragColor = vec4(f0);
+              // else fragColor = texture2D(u_texture, vec2(v_uv.x, (v_uv.y - fhalf + u_brushWidthRate) / max(u_brushWidthRate, f1) * f2));
+              fragColor = texture2D(u_texture, vec2(f0, max(f0, (v_uv.y - fhalf - heightOffset + u_brushWidthRate) / u_brushWidthRate / f2)));
             #endif
             #if (RENDER_CHANNEL == 101) // 仅仅开启alpha通道
               fragColor = u_color;
@@ -96,12 +105,14 @@ export class STShape extends Shape {
         `,
         uniforms: {
           u_textureHeight: 10,
-          u_brushWidthRate: 2 / 40,
-          u_color: fill
+          u_brushWidthRate: brushWidth / thickness / 2,
+          u_color: fill,
+          u_heightMap: heightMap
         },
         defines: {
           // 星轨的渲染通道控制，alpha通道/height通道/颜色通道
-          RENDER_CHANNEL: brush ? 100 : 101
+          RENDER_CHANNEL: brush ? 100 : 101,
+          HEIGHT_MAP_LENGTH: heightMap.length
         }
       }
     })

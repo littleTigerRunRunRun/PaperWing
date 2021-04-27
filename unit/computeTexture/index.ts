@@ -58,7 +58,7 @@ export default function main(canvas: HTMLCanvasElement) {
       geometry: { type: 'rect', width: 200, height: 20 },
       material: {
         type: 'standard',
-        color: { r: 0.8, g: 0.6, b: 0.4, a: 1.0},
+        color: [0.8, 0.6, 0.4, 1.0],
         texture: 'test_tile',
         vs: `#version 300 es
           layout (location = 0) in vec4 positions;

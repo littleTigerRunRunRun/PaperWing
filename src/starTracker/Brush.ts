@@ -97,7 +97,9 @@ export class Atom extends Leaflike {
       geometry: { type: 'rect', width: this.width, height: this.height },
       material
     })
-    // console.log(this.shape)
+    this.shape.x = x
+    this.shape.y = y
+    console.log(this.shape)
   }
 }
 

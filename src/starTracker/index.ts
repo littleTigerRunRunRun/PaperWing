@@ -101,6 +101,9 @@ interface StarTrackSegmentConfig {
   // style
   fill?:RGBAColorObject
   brush?:string
+  brushWidth?:number
+  // 高度贴图
+  heightMap?:Array<number>
 }
 
 // 主要用于线段的有向flex容器
@@ -203,8 +206,10 @@ export class StarTrackSegmentGroup extends Flex2DGroup {
       direction: this.directionVector,
       fill: seg.fill,
       brush: seg.brush,
+      brushWidth: seg.brushWidth,
       baseline: seg.baseline,
-      verticalOffset: seg.verticalOffset
+      verticalOffset: seg.verticalOffset,
+      heightMap: seg.heightMap
     })
     this.absolutes.push(sp)
     this.add(sp)
@@ -221,8 +226,10 @@ export class StarTrackSegmentGroup extends Flex2DGroup {
       direction: this.directionVector,
       fill: seg.fill,
       brush: seg.brush,
+      brushWidth: seg.brushWidth,
       baseline: seg.baseline,
-      verticalOffset: seg.verticalOffset
+      verticalOffset: seg.verticalOffset,
+      heightMap: seg.heightMap
     })
     this.relatives.push(sp)
     this.add(sp)
