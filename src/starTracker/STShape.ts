@@ -79,6 +79,7 @@ export class STShape extends Shape {
           
           uniform vec4 u_color;
           uniform sampler2D u_texture;
+          uniform float u_height;
           uniform float u_brushWidthRate;
           uniform float[HEIGHT_MAP_LENGTH] u_heightMap;
   
@@ -90,13 +91,30 @@ export class STShape extends Shape {
             float heightPos = v_uv.x * float(HEIGHT_MAP_LENGTH);
             float leftValue = floor(heightPos);
             float rightValue = ceil(heightPos);
-            float heightOffset = mix(u_heightMap[int(leftValue)], u_heightMap[int(rightValue)], heightPos - leftValue);
+            float heightOffset = mix(u_heightMap[int(leftValue)], u_heightMap[int(rightValue)], heightPos - leftValue); // u_heightMap[int(round(heightPos))];
 
             #if (RENDER_CHANNEL == 100) // 仅仅开启alpha通道
-              // float accuracy = 0.0001;
-              // if (v_uv.y < fhalf - u_brushWidthRate - accuracy ||v_uv.y > fhalf + u_brushWidthRate + accuracy) fragColor = vec4(f0);
-              // else fragColor = texture2D(u_texture, vec2(v_uv.x, (v_uv.y - fhalf + u_brushWidthRate) / max(u_brushWidthRate, f1) * f2));
-              fragColor = texture2D(u_texture, vec2(f0, max(f0, (v_uv.y - fhalf - heightOffset + u_brushWidthRate) / u_brushWidthRate / f2)));
+              float brushTexWidth = u_brushWidthRate * u_height * f2;
+              float samplerRate = f1 / brushTexWidth;
+              float posy = (v_uv.y - fhalf - heightOffset + u_brushWidthRate) / u_brushWidthRate / f2;
+
+              // fragColor = texture2D(u_texture, vec2(f0, posy));
+
+              // float lastPoint = (floor(posy / samplerRate) - 0.1) * samplerRate;
+              // float nextPoint = lastPoint + samplerRate;
+              // vec3 ls = texture2D(u_texture, vec2(f0, lastPoint)).xyz;
+              // vec3 ns = texture2D(u_texture, vec2(f0, nextPoint)).xyz;
+              // fragColor = vec4(mix(ls, ns, (posy - lastPoint) / samplerRate), f1);
+              
+              vec3 s1 = texture(u_texture, vec2(f0, posy - samplerRate * 0.7 )).xyz;
+              vec3 s2 = texture(u_texture, vec2(f0, posy - samplerRate * 0.5 )).xyz;
+              vec3 s3 = texture(u_texture, vec2(f0, posy - samplerRate * 0.3 )).xyz;
+              vec3 s4 = texture(u_texture, vec2(f0, posy - samplerRate * 0.1 )).xyz;
+              vec3 s5 = texture(u_texture, vec2(f0, posy + samplerRate * 0.1 )).xyz;
+              vec3 s6 = texture(u_texture, vec2(f0, posy + samplerRate * 0.3 )).xyz;
+              vec3 s7 = texture(u_texture, vec2(f0, posy + samplerRate * 0.5 )).xyz;
+              vec3 s8 = texture(u_texture, vec2(f0, posy + samplerRate * 0.7 )).xyz;
+              fragColor = vec4((s1 + s2 * 1.2 + s3 * 1.8 + s4 * 2.0 + s5 * 2.0 + s6 * 1.8 + s7 * 1.2 + s8) / 12.0, f1);
             #endif
             #if (RENDER_CHANNEL == 101) // 仅仅开启alpha通道
               fragColor = u_color;
@@ -107,7 +125,8 @@ export class STShape extends Shape {
           u_textureHeight: 10,
           u_brushWidthRate: brushWidth / thickness / 2,
           u_color: fill,
-          u_heightMap: heightMap
+          u_heightMap: heightMap,
+          u_height: thickness
         },
         defines: {
           // 星轨的渲染通道控制，alpha通道/height通道/颜色通道
@@ -123,7 +142,7 @@ export class STShape extends Shape {
     this.psStart = psStart
     this.psEnd = psEnd
     this.direction = direction
-    this.thickness = thickness
+    this.thickness = this.height = thickness
     this.baseline = baseline
     this.verticalOffset = verticalOffset
   }
@@ -161,6 +180,7 @@ export class STShape extends Shape {
     this._length = length
     
     // 更新
+    this.width = length
     this.geometry._refreshGeometry({
       type: 'line',
       start: { x: 0, y: 0 },

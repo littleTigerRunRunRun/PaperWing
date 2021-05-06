@@ -9,7 +9,7 @@ export default function main(canvas: HTMLCanvasElement) {
 
   const shape:Shape = new Shape({
     geometry: { type: 'rect', width: 100, height: 100 },
-    material: { type: 'pure', r: 1, g: 0.3, b: 0.2, a: 1 }
+    material: { type: 'pure', color: [1, 0.3, 0.2, 1] }
   })
   shape.name = 'testShape'
 

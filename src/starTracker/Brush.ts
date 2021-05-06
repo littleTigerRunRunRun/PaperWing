@@ -99,7 +99,6 @@ export class Atom extends Leaflike {
     })
     this.shape.x = x
     this.shape.y = y
-    console.log(this.shape)
   }
 }
 
