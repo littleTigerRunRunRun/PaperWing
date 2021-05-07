@@ -98,7 +98,7 @@ export class STShape extends Shape {
               float samplerRate = f1 / brushTexWidth;
               float posy = (v_uv.y - fhalf - heightOffset + u_brushWidthRate) / u_brushWidthRate / f2;
 
-              // fragColor = texture2D(u_texture, vec2(f0, posy));
+              fragColor = texture2D(u_texture, vec2(f0, posy));
 
               // float lastPoint = (floor(posy / samplerRate) - 0.1) * samplerRate;
               // float nextPoint = lastPoint + samplerRate;
@@ -106,15 +106,15 @@ export class STShape extends Shape {
               // vec3 ns = texture2D(u_texture, vec2(f0, nextPoint)).xyz;
               // fragColor = vec4(mix(ls, ns, (posy - lastPoint) / samplerRate), f1);
               
-              vec3 s1 = texture(u_texture, vec2(f0, posy - samplerRate * 0.7 )).xyz;
-              vec3 s2 = texture(u_texture, vec2(f0, posy - samplerRate * 0.5 )).xyz;
-              vec3 s3 = texture(u_texture, vec2(f0, posy - samplerRate * 0.3 )).xyz;
-              vec3 s4 = texture(u_texture, vec2(f0, posy - samplerRate * 0.1 )).xyz;
-              vec3 s5 = texture(u_texture, vec2(f0, posy + samplerRate * 0.1 )).xyz;
-              vec3 s6 = texture(u_texture, vec2(f0, posy + samplerRate * 0.3 )).xyz;
-              vec3 s7 = texture(u_texture, vec2(f0, posy + samplerRate * 0.5 )).xyz;
-              vec3 s8 = texture(u_texture, vec2(f0, posy + samplerRate * 0.7 )).xyz;
-              fragColor = vec4((s1 + s2 * 1.2 + s3 * 1.8 + s4 * 2.0 + s5 * 2.0 + s6 * 1.8 + s7 * 1.2 + s8) / 12.0, f1);
+              // vec3 s1 = texture(u_texture, vec2(f0, posy - samplerRate * 0.7 )).xyz;
+              // vec3 s2 = texture(u_texture, vec2(f0, posy - samplerRate * 0.5 )).xyz;
+              // vec3 s3 = texture(u_texture, vec2(f0, posy - samplerRate * 0.3 )).xyz;
+              // vec3 s4 = texture(u_texture, vec2(f0, posy - samplerRate * 0.1 )).xyz;
+              // vec3 s5 = texture(u_texture, vec2(f0, posy + samplerRate * 0.1 )).xyz;
+              // vec3 s6 = texture(u_texture, vec2(f0, posy + samplerRate * 0.3 )).xyz;
+              // vec3 s7 = texture(u_texture, vec2(f0, posy + samplerRate * 0.5 )).xyz;
+              // vec3 s8 = texture(u_texture, vec2(f0, posy + samplerRate * 0.7 )).xyz;
+              // fragColor = vec4((s1 + s2 * 1.2 + s3 * 1.8 + s4 * 2.0 + s5 * 2.0 + s6 * 1.8 + s7 * 1.2 + s8) / 12.0, f1);
             #endif
             #if (RENDER_CHANNEL == 101) // 仅仅开启alpha通道
               fragColor = u_color;
