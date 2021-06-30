@@ -69,6 +69,7 @@ export interface StarTrackConfig {
   height:number
   items:Array<StarTrackItem>
   flexs:Array<FlexItemConfig>
+  samplerRate?:number
 }
 
 // 专用于StarTrack的定制Flex2DGroup，它和原本的Flex2DGroup有一些核心区别：
@@ -284,23 +285,26 @@ export class StarTrack{
     width,
     height,
     items,
-    flexs
+    flexs,
+    samplerRate
   }:StarTrackConfig) {
     this.name = name
     this.title = title
     this.width = width
     this.height = height
 
-    this.createContainer(width, height)
+    this.createContainer(width, height, samplerRate)
     this.createItems(items)
     this.container.addFlex(flexs)
   }
 
-  protected createContainer(width:number, height:number) {
+  protected createContainer(width:number, height:number, samplerRate:number) {
     this.container = new Flex2DGroup({
       name: 'container',
       width,
       height,
+      samplerRate,
+      manual: samplerRate === undefined ? false : true
       // helper: {
       //   stroke: { r: 1, g: 1, b: 1, a: 0.4 },
       //   strokeWidth: 4

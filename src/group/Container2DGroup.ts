@@ -1,13 +1,17 @@
 import { BaseGroup } from './BaseGroup'
-import { GetSetNumber, GetSetSize, MatrixManager2D, BuildMatrixManager2D, ClassTypeName, SignClassTypeName } from '../utils'
+import { GetSetNumber, GetSetSize, MatrixManager2D, BuildMatrixManager2D, ClassTypeName, SignClassTypeName, childlike } from '../utils'
 import { Shape } from '../core/Shape'
 import { RGBAColorObject } from '@/common'
+import { ComputeTexture } from '../computeTexture'
+import Subscriber from '../core/Subscriber'
 
 export interface Container2DGroupConfig {
   name:string
   width:number
   height:number
   helper?:ContainerHelperConfig
+  samplerRate?:number
+  manual?:boolean
 }
 
 interface ContainerHelperConfig {
@@ -25,8 +29,11 @@ export interface Container2DGroup extends GetSetSize, MatrixManager2D, ClassType
 @GetSetNumber('height', 0)
 export class Container2DGroup extends BaseGroup {
   protected helperShape:Shape
+  protected manual:boolean = false
+  protected samplerRate:number = 1
+  protected computeTexture:ComputeTexture = null
 
-  constructor({ name, width, height, helper = null }:Container2DGroupConfig) {
+  constructor({ name, width, height, helper = null, samplerRate = 1, manual = false }:Container2DGroupConfig) {
     super({ name })
 
     this.width = width
@@ -42,9 +49,50 @@ export class Container2DGroup extends BaseGroup {
       this.helperShape = new Shape(shapeConfig)
       this.add(this.helperShape)
     }
+
+    this.samplerRate = samplerRate
+    this.manual = manual
   }
 
+  // 如果是手动模式，我们将储存容器内的内容绘制为buffer保存
+  protected waitAddChildren:Array<childlike> = []
+  public add(child:childlike):number {
+    if (this.manual) {
+      if (this.computeTexture) return this.computeTexture.add(child)
+      else {
+        this.waitAddChildren.push(child)
+        return -1
+      }
+    } else return super.add(child)
+  }
+
+  public setSubscriber(subscriber:Subscriber) {
+    super.setSubscriber(subscriber)
+
+    if (this.manual) {
+      this.computeTexture = new ComputeTexture({
+        subscriber,
+        name: this.name + '_ct',
+        width: this.width * this.samplerRate,
+        height: this.height * this.samplerRate,
+        samplerRate: this.samplerRate
+      })
+
+      for (const child of this.waitAddChildren) this.computeTexture.add(child)
+      this.waitAddChildren.splice(0, this.waitAddChildren.length)
+    }
+  }
+
+  renderManually() {
+    this.computeTexture.renderAndDownload()
+  }
+
+  protected lastArgus:Array<any> = []
   render(...argus:Array<any>) {
+    if (this.computeTexture) {
+      this.lastArgus = argus
+      return
+    }
     if (this.needRefreshMatrix) this.computeMatrix()
 
     super.render(...argus)

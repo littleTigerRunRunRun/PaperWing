@@ -82,6 +82,7 @@ export class STShape extends Shape {
           uniform float u_height;
           uniform float u_brushWidthRate;
           uniform float[HEIGHT_MAP_LENGTH] u_heightMap;
+          uniform float u_samplerRate;
   
           in vec2 v_uv;
   
@@ -94,18 +95,21 @@ export class STShape extends Shape {
             float heightOffset = mix(u_heightMap[int(leftValue)], u_heightMap[int(rightValue)], heightPos - leftValue); // u_heightMap[int(round(heightPos))];
 
             #if (RENDER_CHANNEL == 100) // 仅仅开启alpha通道
-              float brushTexWidth = u_brushWidthRate * u_height * f2;
+              float brushTexWidth = u_brushWidthRate * u_height * f2 * u_samplerRate;
               float samplerRate = f1 / brushTexWidth;
               float posy = (v_uv.y - fhalf - heightOffset + u_brushWidthRate) / u_brushWidthRate / f2;
 
-              fragColor = texture2D(u_texture, vec2(f0, posy));
-
-              // float lastPoint = (floor(posy / samplerRate) - 0.1) * samplerRate;
-              // float nextPoint = lastPoint + samplerRate;
-              // vec3 ls = texture2D(u_texture, vec2(f0, lastPoint)).xyz;
-              // vec3 ns = texture2D(u_texture, vec2(f0, nextPoint)).xyz;
-              // fragColor = vec4(mix(ls, ns, (posy - lastPoint) / samplerRate), f1);
+              // 直接根据位置求取纹理坐标
+              // fragColor = texture2D(u_texture, vec2(f0, posy));
               
+              // 对像素位置的颜色做一次线性插值
+              float lastPoint = (floor(posy / samplerRate) - 0.1) * samplerRate;
+              float nextPoint = lastPoint + samplerRate;
+              vec3 ls = texture2D(u_texture, vec2(f0, lastPoint)).xyz;
+              vec3 ns = texture2D(u_texture, vec2(f0, nextPoint)).xyz;
+              fragColor = vec4(mix(ls, ns, (posy - lastPoint) / samplerRate), f1);
+              
+              // 模糊
               // vec3 s1 = texture(u_texture, vec2(f0, posy - samplerRate * 0.7 )).xyz;
               // vec3 s2 = texture(u_texture, vec2(f0, posy - samplerRate * 0.5 )).xyz;
               // vec3 s3 = texture(u_texture, vec2(f0, posy - samplerRate * 0.3 )).xyz;

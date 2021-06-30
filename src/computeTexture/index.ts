@@ -12,20 +12,22 @@ export interface ComputeTextureConfig {
   width:number
   height:number
   subscriber:Subscriber,
-  viewer?:Viewer
+  viewer?:Viewer,
+  samplerRate?:number
 }
 
 // compute texture 重点在于compute，它是一个动态的计算过程，不放在管线里面的原因是，它的计算频率远低于per frame
 export class ComputeTexture extends Treelike {
   protected subscriber:Subscriber
   protected gl:GLContext
+  protected samplerRate:number = 1
   public name:string
   public buffer:Framebuffer
   public viewer:Viewer
   public width:number
   public height:number
   public get texture() { return this.buffer.color }
-  constructor({ name, subscriber, viewer = null, width = 300, height = 200 }:ComputeTextureConfig) {
+  constructor({ name, subscriber, viewer = null, width = 300, height = 200, samplerRate = 1 }:ComputeTextureConfig) {
     super()
 
     this.name = name
@@ -34,6 +36,7 @@ export class ComputeTexture extends Treelike {
     // console.log(this.viewer)
     this.width = width
     this.height = height
+    this.samplerRate = samplerRate
 
     this.subscriber.once('getGl', this.getGl)
   }
@@ -62,12 +65,13 @@ export class ComputeTexture extends Treelike {
     this.gl.viewport(0, 0, this.width, this.height)
 
     // 这里的child可以是group、shape和particle
-    const projectionMatrix = this.viewer.computeProjectionMatrix(this.width, this.height)
+    const projectionMatrix = this.viewer.computeProjectionMatrix(this.width / this.samplerRate, this.height / this.samplerRate)
     this.children.forEach((child) => {
       if (isRenderable(child)) {
         child.render({
           framebuffer: this.buffer,
           uniforms: {
+            u_samplerRate: this.samplerRate,
             u_projectionMatrix: projectionMatrix,
             u_viewMatrix: this.viewer.viewMatrix
           }
@@ -91,16 +95,21 @@ export class ComputeTexture extends Treelike {
     }
 
     // 这里的child可以是group、shape和particle
-    const projectionMatrix = this.viewer.computeProjectionMatrix(this.width, this.height)
+    const projectionMatrix = this.viewer.computeProjectionMatrix(this.width / this.samplerRate, this.height / this.samplerRate)
     this.children.forEach((child) => {
       if (isRenderable(child)) {
         child.render({
           uniforms: {
+            u_samplerRate: this.samplerRate,
             u_projectionMatrix: projectionMatrix,
             u_viewMatrix: this.viewer.viewMatrix
           }
         })
       }
     })
+  }
+
+  public renderTextureToMain() {
+    
   }
 }
