@@ -1,5 +1,3 @@
-import { GLContext, MaterialReceipt, RGBAColorObject } from '@/common'
-
 export interface PureColorMaterialConfig {
   type:string
   color:RGBAColorObject

@@ -1,5 +1,4 @@
 import { Texture2D } from '@luma.gl/webgl'
-import { MaterialReceipt } from '@/common'
 
 export interface Texture2DMaterialConfig {
   type:string

@@ -1,4 +1,3 @@
-import { PWPoint, Point } from '@/common'
 import { Vector2 } from 'math.gl'
 import { Geometry } from '@luma.gl/engine'
 import { GetSetNumber, GetSetSize } from '../utils'

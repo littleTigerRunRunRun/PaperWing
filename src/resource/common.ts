@@ -1,5 +1,3 @@
-import { Dictionary } from '@/common'
-
 export type AssetGroup = Dictionary<string>
 
 export type Assets = Dictionary<string|AssetGroup>

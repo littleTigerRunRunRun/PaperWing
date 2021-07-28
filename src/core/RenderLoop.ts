@@ -1,7 +1,6 @@
 import { AnimationLoop } from '@luma.gl/engine'
 import { setParameters } from '@luma.gl/gltools'
 import GL from '@luma.gl/constants'
-import { Dictionary, GLContext } from '@/common'
 import Subscriber from './Subscriber'
 import { mixin } from '../utils'
 

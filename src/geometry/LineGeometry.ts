@@ -1,5 +1,4 @@
 import { BaseGeometry } from './BaseGeometry'
-import { PWPoint, Point } from '@/common'
 import { Vector2 } from 'math.gl'
 
 export interface LineGeometryShapeConfig {

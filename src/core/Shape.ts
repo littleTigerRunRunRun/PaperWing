@@ -1,7 +1,6 @@
 import { Leaflike, constantValue, GetSetNumber, GetSetSize, MatrixManager2D, BuildMatrixManager2D, ClassTypeName, SignClassTypeName } from '../utils' // , GetSetRenderOrder
 import { getGeometry, GeometryType, GeometryConfig } from '../geometry/index'
 import { getMaterial, MaterialType, MaterialConfig } from '../material/index'
-import { GLContext, Length16NumberArray } from '@/common'
 import { Model } from '@luma.gl/engine'
 import { setParameters } from '@luma.gl/gltools'
 import { RenderParams } from './Scene'

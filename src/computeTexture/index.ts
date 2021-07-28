@@ -1,6 +1,5 @@
 import { childlike, Treelike, isRenderable } from '../utils'
 import { OrthoViewer, Viewer } from '../viewer'
-import { GLContext } from '@/common'
 import { createColorBuffer } from './createBuffer'
 import { Framebuffer } from '@luma.gl/webgl'
 import Subscriber from '@/core/Subscriber'

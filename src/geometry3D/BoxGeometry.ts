@@ -1,5 +1,4 @@
 import { BaseGeometry } from '../geometry/BaseGeometry'
-import { PWPoint } from '@/common'
 
 export interface RectGeometryShapeConfig {
   x?: number

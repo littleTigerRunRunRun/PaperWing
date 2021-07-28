@@ -1,7 +1,6 @@
 import { BaseGroup } from './BaseGroup'
 import { GetSetNumber, GetSetSize, MatrixManager2D, BuildMatrixManager2D, ClassTypeName, SignClassTypeName, childlike } from '../utils'
 import { Shape } from '../core/Shape'
-import { RGBAColorObject } from '@/common'
 import { ComputeTexture } from '../computeTexture'
 import Subscriber from '../core/Subscriber'
 

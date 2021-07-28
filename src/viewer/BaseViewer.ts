@@ -1,5 +1,4 @@
 import { Matrix4 } from 'math.gl'
-import { Length16NumberArray } from '@/common'
 
 export interface Viewer {
   viewMatrix:Matrix4

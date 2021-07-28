@@ -1,4 +1,3 @@
-import { Dictionary } from '@/common'
 import { AssetGroup, LoadedAssetsGroup } from './common'
 
 interface LoadedImage {

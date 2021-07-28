@@ -1,5 +1,4 @@
 import { Scene } from './Scene'
-import { GLContext } from '@/common'
 import { clear } from '@luma.gl/webgl'
 import Stats from 'stats.js'
 import { isRenderable } from '../utils'

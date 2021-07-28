@@ -1,6 +1,5 @@
 import { Container2DGroup, Container2DGroupConfig } from './Container2DGroup'
 import { ClassTypeName, SignClassTypeName, GetSetBound, GetSetNumber, childlike } from '../utils'
-import { Dictionary, Direction } from '@/common'
 
 // interface Flex2DGroupConfig extends Container2DGroupConfig {}
 

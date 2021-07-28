@@ -1,7 +1,6 @@
 
 import { Framebuffer, Texture2D } from '@luma.gl/webgl'
 import GL from '@luma.gl/constants'
-import { GLContext } from '@/common'
 
 export function createColorBuffer(gl:GLContext, width:number, height:number):Framebuffer {
   const buffer = new Framebuffer(gl, {

@@ -1,5 +1,3 @@
-import { Dictionary } from '@/common'
-
 interface NowCompute {
   callback:Function,
   params?:Array<any>
