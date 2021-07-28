@@ -3,9 +3,8 @@ import Subscriber from '../core/Subscriber'
 
 // Group会传递render，但是在这期间，它会将一些共通的属性给传递下去，但是BaseGroup仅仅是一个聚类作用
 export class BaseGroup extends Branchlike {
-  public subscriber:Subscriber
   public add(child:childlike):number {
-    if (child.parent === this) return
+    if (child.parent === this) return -1
 
     const index = super.add(child)
     if (this.subscriber) child.setSubscriber(this.subscriber)

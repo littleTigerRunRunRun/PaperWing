@@ -1,6 +1,6 @@
 export function GetSetNumber(property:string, defaultValue:number = 0) {
   return function<T extends {new(...args:any[]):{}}>(constructor:T) {
-    const defines = {}
+    const defines:Dictionary<any> = {}
     defines[`_${property}`] = { value: defaultValue, writable: true }
     defines[property] = {
       get() {
@@ -19,34 +19,6 @@ export function GetSetNumber(property:string, defaultValue:number = 0) {
   }
 }
 
-// 用于描述width接口的抽象类
-export class GetSetWidth {
-  _width:number
-  get width():number{ return this._width }
-  set width(width:number) {}
-}
-
-// 用于描述height接口的抽象类
-export class GetSetHeight {
-  _height:number
-  get height():number{ return this._height }
-  set height(height:number) {}
-}
-
-// 用于描述x接口的抽象类
-export class GetSetX {
-  _x:number
-  get x():number{ return this._x }
-  set x(height:number) {}
-}
-
-// 用于描述y接口的抽象类
-export class GetSetY {
-  _y:number
-  get y():number{ return this._y }
-  set y(y:number) {}
-}
-
 export interface GetSetSize extends GetSetWidth, GetSetHeight {}
 @GetSetNumber('width')
 @GetSetNumber('height')
@@ -63,10 +35,3 @@ export interface GetSetBound extends GetSetX, GetSetY, GetSetWidth, GetSetHeight
 @GetSetNumber('x')
 @GetSetNumber('y')
 export class GetSetBound {}
-
-// 用于描述绘制顺序的抽象类
-export class GetSetRenderOrder {
-  _renderOrder:number
-  get renderOrder():number { return this._renderOrder }
-  set renderOrder(renderOrder:number) {}
-}

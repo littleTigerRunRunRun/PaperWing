@@ -1,25 +1,12 @@
 import { Matrix4 } from 'math.gl'
 
-export interface Viewer {
-  viewMatrix:Matrix4
-  projectionMatrix:Matrix4
-  computeProjectionMatrix(width:number, height:number):Matrix4
-  destroy()
-}
-
-// 这个版本就是一个真正的纯2d viewer
-export interface BaseViewerParams {
-  width?:number
-  height?:number
-}
-
 export class BaseViewer implements Viewer {
   public viewMatrix:Matrix4 = new Matrix4()
-  public projectionMatrix:Matrix4
+  public projectionMatrix:Matrix4 = new Matrix4()
   protected width:number
   protected height:number
-  protected glWidth:number
-  protected glHeight:number
+  protected glWidth:number = 0
+  protected glHeight:number = 0
 
   constructor(params:BaseViewerParams = {}) {
     const { width = 100, height = 100 } = params

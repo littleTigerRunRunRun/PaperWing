@@ -1,17 +1,14 @@
-import { PureColorMaterial, PureColorMaterialConfig } from './PureColorMaterial'
-import { Texture2DMaterial, Texture2DMaterialConfig } from './Texture2DMaterial'
-import { StandardMaterial, StandardMaterialConfig } from './StandardMaterial'
+import { PureColorMaterial } from './PureColorMaterial'
+import { Texture2DMaterial } from './Texture2DMaterial'
+import { StandardMaterial } from './StandardMaterial'
 
-export type MaterialType = PureColorMaterial | Texture2DMaterial | StandardMaterial
+export declare type MaterialType = PureColorMaterial | Texture2DMaterial | StandardMaterial
 
-export type MaterialConfig = PureColorMaterialConfig | Texture2DMaterialConfig | StandardMaterialConfig
-
-export function getMaterial(config:MaterialConfig) {
-  let prototype
+export function getMaterial(config:MaterialConfig):MaterialType {
   switch(config.type) {
-    case 'pure': prototype = PureColorMaterial; break
-    case 'texture2d': prototype = Texture2DMaterial; break
-    case 'standard': prototype = StandardMaterial; break
+    case 'pure': return new PureColorMaterial(config as PureColorMaterialConfig)
+    case 'texture2d': return new Texture2DMaterial(config as Texture2DMaterialConfig)
+    case 'standard': return new StandardMaterial(config as StandardMaterialConfig)
   }
-  return new prototype(config)
+  throw new Error(`shape get material with no such type: ${config.type}`)
 }

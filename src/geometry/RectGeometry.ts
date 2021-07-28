@@ -1,19 +1,7 @@
 import { BaseGeometry } from './BaseGeometry'
 
-export interface RectGeometryShapeConfig {
-  type?: string
-  x?: number
-  y?: number
-  rotate?: number
-  width: number
-  height: number
-  stroke?: number
-}
-
 // 矩形几何类型
 export class RectGeometry extends BaseGeometry {
-  public config:any
-
   constructor(config:RectGeometryShapeConfig) {
     super(config)
   }

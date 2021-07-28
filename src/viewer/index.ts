@@ -7,8 +7,7 @@
 // cover保持原本比例不变，尽可能最大展示
 // contain保持原本比例不变，内容尽可能最小的情况下包含容器
 // none不作任何处理，直接往width * height的画布上放
-type FitScheme = 'auto' | 'cover' | 'contain' | 'none'
 
-export { BaseViewer, Viewer } from './BaseViewer'
+export { BaseViewer } from './BaseViewer'
 
 export { OrthoViewer } from './OrthoViewer'

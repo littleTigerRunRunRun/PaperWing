@@ -1,17 +1,12 @@
-import { RectGeometry, RectGeometryShapeConfig } from './RectGeometry'
-import { LineGeometry, LineGeometryShapeConfig } from './LineGeometry'
-
-export { LineGeometryShapeConfig } from './LineGeometry'
+import { RectGeometry } from './RectGeometry'
+import { LineGeometry } from './LineGeometry'
 
 export type GeometryType = RectGeometry | LineGeometry
 
-export type GeometryConfig = RectGeometryShapeConfig | LineGeometryShapeConfig
-
-export function getGeometry(config:GeometryConfig) {
-  let prototype
+export function getGeometry(config:GeometryConfig):GeometryType {
   switch(config.type) {
-    case 'rect': prototype = RectGeometry; break
-    case 'line': prototype = LineGeometry; break
+    case 'rect': return new RectGeometry(config as RectGeometryShapeConfig);
+    case 'line': return new LineGeometry(config as LineGeometryShapeConfig); break
   }
-  return new prototype(config)
+  throw new Error(`shape get geometry with no such type: ${config.type}`)
 }

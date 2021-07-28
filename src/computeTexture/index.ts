@@ -1,32 +1,21 @@
 import { childlike, Treelike, isRenderable } from '../utils'
-import { OrthoViewer, Viewer } from '../viewer'
+import { OrthoViewer } from '../viewer'
 import { createColorBuffer } from './createBuffer'
 import { Framebuffer } from '@luma.gl/webgl'
-import Subscriber from '@/core/Subscriber'
 import { resizeGLContext } from '@luma.gl/gltools'
-import { times } from 'lodash'
-
-export interface ComputeTextureConfig {
-  name:string // 当这个texture被渲染后，应该可以被
-  width:number
-  height:number
-  subscriber:Subscriber,
-  viewer?:Viewer,
-  samplerRate?:number
-}
 
 // compute texture 重点在于compute，它是一个动态的计算过程，不放在管线里面的原因是，它的计算频率远低于per frame
 export class ComputeTexture extends Treelike {
-  protected subscriber:Subscriber
-  protected gl:GLContext
+  protected subscriber:PaperWingSubscriber
+  protected gl!:GLContext
   protected samplerRate:number = 1
   public name:string
-  public buffer:Framebuffer
+  public buffer!:Framebuffer
   public viewer:Viewer
   public width:number
   public height:number
   public get texture() { return this.buffer.color }
-  constructor({ name, subscriber, viewer = null, width = 300, height = 200, samplerRate = 1 }:ComputeTextureConfig) {
+  constructor({ name, subscriber, viewer, width = 300, height = 200, samplerRate = 1 }:ComputeTextureConfig) {
     super()
 
     this.name = name
@@ -47,7 +36,7 @@ export class ComputeTexture extends Treelike {
   }
 
   public add(child:childlike):number {
-    if (child.parent === this) return
+    if (child.parent === this) return -1
 
     const index = super.add(child)
     child.setSubscriber(this.subscriber)

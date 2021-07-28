@@ -1,13 +1,12 @@
 import { childlike, Treelike } from '../utils'
-import { Renderer } from './Renderer'
-import { RenderLoop, AnimationLoopStartOptions, GLParams, makeRenderLoopCarrier, RenderLoopCarrier } from './RenderLoop'
+import { Renderer } from './renderer'
+import { RenderLoop, makeRenderLoopCarrier, RenderLoopCarrier } from './RenderLoop'
 import Subscriber from './Subscriber'
-import { Viewer } from '../viewer'
-import { Assets, Resource } from '../resource'
-import { Framebuffer } from '@luma.gl/webgl'
+import { OrthoViewer } from '../viewer'
+import { Resource } from '../resource'
 
 interface SceneInitConifg {
-  canvas?:HTMLCanvasElement
+  canvas:HTMLCanvasElement
   stats?:boolean
   options?:AnimationLoopStartOptions
   glParams?:GLParams
@@ -15,14 +14,9 @@ interface SceneInitConifg {
   autoTick?:boolean
 }
 
-// export interface ListenGL {
+// declare interface ListenGL {
 //   get():GLContext
 // }
-
-export interface RenderParams {
-  uniforms:Dictionary<any>
-  framebuffer?:Framebuffer
-}
 
 // 将RenderLoopCarrier这个扩展混合进Treelike
 export interface Scene extends RenderLoopCarrier {}
@@ -37,7 +31,7 @@ export class Scene extends Treelike {
   public getSubscriber() { return this.subscriber }
   public resource:Resource
   
-  constructor({ canvas, options = {}, stats = false, glParams = {}, assets = null, autoTick = true }: SceneInitConifg) {
+  constructor({ canvas, options = {}, stats = false, glParams = {}, assets, autoTick = true }: SceneInitConifg) {
     super()
     
     this.canvas = canvas
@@ -45,11 +39,13 @@ export class Scene extends Treelike {
     this.subscriber.set('scene', this)
     this.subscriber.set('itemId', 0)
 
-    this.resource = new Resource(this.subscriber, assets)
+    this.resource = new Resource(this.subscriber, assets || {})
 
     this.loop = new RenderLoop({ canvas, subscriber: this.subscriber, options, glParams })
 
     this.renderer = new Renderer({ scene: this, stats, autoTick })
+
+    this.viewer = new OrthoViewer({ far: 4000 })
   
     // 综合resouce和gl准备好的钩子
     this.subscriber.next('getGl', this.onGLGet)
@@ -76,12 +72,12 @@ export class Scene extends Treelike {
 
   // 钩子：资源和gl都准备完毕
   private _onReady() {}
-  public onReady(callback) {
+  public onReady(callback:Callback) {
     this._onReady = callback
   }
 
   public add(child:childlike):number {
-    if (child.parent === this) return
+    if (child.parent === this) return -1
 
     const index = super.add(child)
     child.setSubscriber(this.subscriber)

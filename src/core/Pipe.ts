@@ -18,9 +18,9 @@ export class Pipe {
   
   private stages: Array<PipeStage>
   private needUpdate: boolean
-  private assetsReady: boolean
+  private assetsReady: boolean = false
 
-  private gl:GLContext
+  private gl!:GLContext
   // get gl():GLContext {
   //   return getGL()
   // }

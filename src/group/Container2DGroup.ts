@@ -1,10 +1,10 @@
 import { BaseGroup } from './BaseGroup'
-import { GetSetNumber, GetSetSize, MatrixManager2D, BuildMatrixManager2D, ClassTypeName, SignClassTypeName, childlike } from '../utils'
+import { GetSetNumber, GetSetSize, BuildMatrixManager2D, SignClassTypeName, childlike } from '../utils'
 import { Shape } from '../core/Shape'
 import { ComputeTexture } from '../computeTexture'
 import Subscriber from '../core/Subscriber'
 
-export interface Container2DGroupConfig {
+declare interface Container2DGroupConfig {
   name:string
   width:number
   height:number
@@ -14,8 +14,8 @@ export interface Container2DGroupConfig {
 }
 
 interface ContainerHelperConfig {
-  fill?:RGBAColorObject
-  stroke?:RGBAColorObject
+  fill?:RGBAColorArray
+  stroke?:RGBAColorArray
   strokeWidth?:number
 }
 
@@ -27,12 +27,12 @@ export interface Container2DGroup extends GetSetSize, MatrixManager2D, ClassType
 @GetSetNumber('width', 0)
 @GetSetNumber('height', 0)
 export class Container2DGroup extends BaseGroup {
-  protected helperShape:Shape
+  protected helperShape?:Shape
   protected manual:boolean = false
   protected samplerRate:number = 1
-  protected computeTexture:ComputeTexture = null
+  protected computeTexture?:ComputeTexture
 
-  constructor({ name, width, height, helper = null, samplerRate = 1, manual = false }:Container2DGroupConfig) {
+  constructor({ name, width, height, helper, samplerRate = 1, manual = false }:Container2DGroupConfig) {
     super({ name })
 
     this.width = width
@@ -83,7 +83,7 @@ export class Container2DGroup extends BaseGroup {
   }
 
   renderManually() {
-    this.computeTexture.renderAndDownload()
+    this.computeTexture?.renderAndDownload()
   }
 
   protected lastArgus:Array<any> = []

@@ -1,6 +1,6 @@
 export function GetSetAny(property:string, defaultValue:any) {
   return function<T extends {new(...args:any[]):{}}>(constructor:T) {
-    const defines = {}
+    const defines:Dictionary<any> = {}
     defines[`_${property}`] = { value: defaultValue, writable: true }
     defines[property] = {
       get() {

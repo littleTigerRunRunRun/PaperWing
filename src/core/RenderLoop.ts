@@ -4,54 +4,15 @@ import GL from '@luma.gl/constants'
 import Subscriber from './Subscriber'
 import { mixin } from '../utils'
 
-interface LoopConfig {
-  canvas:HTMLCanvasElement,
-  subscriber:Subscriber
-  options?:AnimationLoopStartOptions
-  glParams?:GLParams
-}
-
-interface AnimationLoopInitializeArguments {
-  gl:GLContext
-}
-
-interface AnimationLoopRenderArguments {
-  gl:GLContext,
-  time:number
-}
-
-interface FrameCompute {
-  callback:Function,
-  params?:Array<any>,
-  before?:boolean
-}
-
-export interface AnimationLoopStartOptions {
-  canvas?:HTMLCanvasElement
-  webgl2?:boolean
-  webgl1?:boolean
-  alpha?:boolean
-  depth?:boolean
-  stencil?:boolean
-  antialias?:boolean
-  premultipliedAlpha?:boolean
-  preserveDrawingBuffer?:boolean
-  failIfMajorPerformanceCaveat?:boolean
-}
-
-export interface GLParams {
-  depth?:boolean
-}
-
 export class RenderLoopCarrier {
-  protected loop:RenderLoop
-  protected subscriber:Subscriber
+  protected loop!:RenderLoop
+  protected subscriber!:Subscriber
 
-  public tick(callback:Function) {
+  public tick(callback:Callback) {
     this.subscriber.listen('loopRender', callback)
   }
 
-  public removeTick(callback:Function) {
+  public removeTick(callback:Callback) {
     this.subscriber.remove('loopRender', callback)
   }
 
@@ -60,16 +21,16 @@ export class RenderLoopCarrier {
   }
 
   // 外部监听一些内部事件
-  public bind(eventName:string, callback:Function) {
+  public bind(eventName:string, callback:Callback) {
     this.subscriber.listen(eventName, callback)
   }
 
   // 取消一个监听
-  public unbind(eventName:string, callback:Function) {
+  public unbind(eventName:string, callback:Callback) {
     this.subscriber.remove(eventName, callback)
   }
 
-  public once(eventName:string, callback:Function) {
+  public once(eventName:string, callback:Callback) {
     this.subscriber.once(eventName, callback)
   }
 }
@@ -82,14 +43,14 @@ export function makeRenderLoopCarrier<T extends {new(...args:any[]):{}}>(constru
 // Loop是整个渲染流程的tick控制器
 export class RenderLoop {
   public canvas:HTMLCanvasElement
-  public gl:GLContext
+  public gl!:GLContext
   public get version() {
     return (this.gl as any)._version
   }
 
-  private loop:AnimationLoop
+  private loop!:AnimationLoop
   private frameComputes:Dictionary<FrameCompute> = {}
-  private subscriber:Subscriber
+  private subscriber:PaperWingSubscriber
   
   constructor({ canvas, subscriber, options = {}, glParams = {} }:LoopConfig) {
     this.canvas = canvas
@@ -126,8 +87,7 @@ export class RenderLoop {
         for (const key in this.frameComputes) {
           const { before, callback, params } = this.frameComputes[key]
           if (before) {
-            callback.apply(this, params)
-            this.frameComputes[key] = null
+            callback.apply(this, params || [])
             delete this.frameComputes[key]
           }
         }
@@ -138,8 +98,7 @@ export class RenderLoop {
         for (const key in this.frameComputes) {
           const { before, callback, params } = this.frameComputes[key]
           if (!before) {
-            callback.apply(this, params)
-            this.frameComputes[key] = null
+            callback.apply(this, params || [])
             delete this.frameComputes[key]
           }
         }

@@ -1,30 +1,9 @@
 import { Matrix4 } from 'math.gl'
-import { Length16NumberArray } from '../../common'
-
-// 用于描述
-export class MatrixManager2D {
-  needRefreshMatrix:boolean
-  _matrix:Matrix4
-  computeMatrix() {}
-  // 平移
-  _x:number
-  x:number
-  _y:number
-  y:number
-  // 缩放
-  _scaleX:number
-  scaleX:number
-  _scaleY:number
-  scaleY:number
-  // 旋转
-  _rotate:number
-  rotate:number
-}
 
 // 目前暂且没有参数
 export function BuildMatrixManager2D(spaceJust = false) {
   return function<T extends {new(...args:any[]):{}}>(constructor:T) {
-    const defines = {
+    const defines:Dictionary<any> = {
       needRefreshMatrix: { value: true, writable: true },
       spaceJust: { value: spaceJust, writable: true },
       _matrix: { value: null, writable: true },
@@ -62,7 +41,7 @@ export function BuildMatrixManager2D(spaceJust = false) {
       }
     }
 
-    const attrs = { x: 0, y: 0, scaleX: 1, scaleY: 1, rotate: 0 }
+    const attrs:Dictionary<number> = { x: 0, y: 0, scaleX: 1, scaleY: 1, rotate: 0 }
     for (const attr in attrs) {
       const value = attrs[attr]
       defines[`_${attr}`] = { value: value, writable: true }

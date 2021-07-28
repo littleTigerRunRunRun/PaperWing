@@ -1,24 +1,3 @@
-interface NowCompute {
-  callback:Function,
-  params?:Array<any>
-}
-
-interface PaperWingSubscriber {
-  list:Dictionary<Array<any>>
-  onceList:Dictionary<Array<any>>
-  nextList:Dictionary<Array<any>>
-  nowList:Array<NowCompute>
-  history:Dictionary<Array<any>>
-  check()
-  register(eventName:string, useHistory?:boolean)
-  cancel(eventName:string)
-  listen(eventName:string, callback:Function)
-  once(eventName:string, callback:Function)
-  remove(eventName:string, callback:Function)
-  broadcast(eventName:string, ...argus:Array<any>)
-  clear()
-}
-
 export default class Subscriber implements PaperWingSubscriber {
   list:Dictionary<Array<any>> = {}
   onceList:Dictionary<Array<any>> = {}
@@ -62,7 +41,7 @@ export default class Subscriber implements PaperWingSubscriber {
   }
   
   // 参与监听一种事件
-  public listen(eventName:string, callback:Function) {
+  public listen(eventName:string, callback:Callback) {
     if (!this.list[eventName]) this.register(eventName)
     // if (readHistory) {
     //   // 如果需要在创建时阅读历史推送
@@ -75,7 +54,7 @@ export default class Subscriber implements PaperWingSubscriber {
   }
 
   // 与listen不同，是一次性的事件监听，即用即丢
-  public once(eventName:string, callback:Function) {
+  public once(eventName:string, callback:Callback) {
     if (this.history[eventName] && this.history[eventName].length > 0) {
       for (const item of this.history[eventName]) {
         callback.apply(this, item)
@@ -86,7 +65,7 @@ export default class Subscriber implements PaperWingSubscriber {
     this.onceList[eventName].push(callback)
   }
 
-  public next(eventName:string, callback:Function) {
+  public next(eventName:string, callback:Callback):void {
     if (this.history[eventName] && this.history[eventName].length > 0) {
       for (const item of this.history[eventName]) {
         callback.apply(this, item)
@@ -137,7 +116,7 @@ export default class Subscriber implements PaperWingSubscriber {
   // function cover(eventName)
   
   // 不建议remove掉once
-  public remove(eventName:string, callback:Function) {
+  public remove(eventName:string, callback:Callback) {
     if (!this.list[eventName]) return
     const li = this.list[eventName].indexOf(callback)
     if (li > -1) this.list[eventName].splice(li, 1)

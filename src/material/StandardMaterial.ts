@@ -1,18 +1,6 @@
-import Subscriber from '@/core/Subscriber'
 import { Texture2D } from '@luma.gl/webgl'
 import GL from '@luma.gl/constants'
 
-export interface StandardMaterialConfig {
-  type: string,
-  color?: RGBAColorObject // 基色
-  texture?: string // 贴图，相比起三维中用uv来上贴图，这里需要单个值（对于条状部件来说，对于块状依然要uv）
-  normalMap?: any // 法向量贴图，这里暂时用any代替等定义完了之后再替换过来，这里的normalMap是用于做几何调整，而且因为降维了，所以它会变成一个更加简单的数据结构
-  uniformTextures: Array<string> // 一些会注入着色器中作为样本使用的贴图
-  fs?:string
-  vs?:string
-  defines?:Dictionary<any>
-  uniforms?:Dictionary<any>
-}
 // 渐变：使用utils.createGradientTexture来生成一个渐变贴图使用
 // 外发光/内发光（对应的外阴影和内阴影其实在2d范畴内是一个概念）方案可能是用后处理
 // 应该会支持后处理
@@ -31,15 +19,15 @@ export class StandardMaterial {
   public get a():number { return this.color[3] }
   public set a(a:number) { this.color[3] = a }
   
-  private _color:RGBAColorObject
+  private _color:RGBAColorArray = [0, 0, 0, 0]
   get color() { return this._color }
-  set color(color:RGBAColorObject) {
+  set color(color:RGBAColorArray) {
     this._color = color
     // do something to change uniforms
   }
 
   private _texture:string = ''
-  public textureObject:Texture2D = null
+  public textureObject?:Texture2D
   get texture() { return this._texture }
   set texture(texture:string) {
     this._texture = texture
@@ -63,14 +51,14 @@ export class StandardMaterial {
 
   public fs:string
   public vs:string
-  public gl:GLContext
-  public uniforms:Dictionary<any>
-  public defines:Dictionary<any>
-  private subscriber:Subscriber
+  public gl?:GLContext
+  public uniforms?:Dictionary<any>
+  public defines?:Dictionary<any>
+  private subscriber?:PaperWingSubscriber
 
-  constructor({ color = [0, 0, 0, 0], texture = null, normalMap = null, uniformTextures = [], fs = '', vs = '', uniforms = null, defines = null }:StandardMaterialConfig) {
+  constructor({ color = [0, 0, 0, 0], texture, normalMap = null, uniformTextures = [], fs = '', vs = '', uniforms, defines }:StandardMaterialConfig) {
     this.color = color
-    this.texture = texture
+    if (texture) this.texture = texture
     this.normalMap = normalMap
     this.uniformTextures = uniformTextures
     this.fs = fs
@@ -80,7 +68,7 @@ export class StandardMaterial {
   }
 
   // :MaterialReceipt 返回回执
-  public getReceipt(is2:boolean, gl:GLContext, subscriber:Subscriber):MaterialReceipt {
+  public getReceipt(is2:boolean, gl:GLContext, subscriber:PaperWingSubscriber):MaterialReceipt {
     this.subscriber = subscriber
     this.gl = gl
     this.createTexture()
@@ -152,6 +140,9 @@ export class StandardMaterial {
   }
 
   private createTexture() {
+    if (!this.subscriber) throw new Error('standard material get the asset but has no subscriber')
+    if (!this.gl) throw new Error('standard material create the texture but has no gl')
+
     const asset = this.subscriber.get(`asset_${this.texture}`)
     if (this.textureObject || !asset) return
     if (asset && asset instanceof Texture2D) {

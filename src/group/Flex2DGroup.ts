@@ -1,9 +1,9 @@
-import { Container2DGroup, Container2DGroupConfig } from './Container2DGroup'
-import { ClassTypeName, SignClassTypeName, GetSetBound, GetSetNumber, childlike } from '../utils'
+import { Container2DGroup } from './Container2DGroup'
+import { SignClassTypeName, GetSetBound, GetSetNumber, childlike } from '../utils'
 
 // interface Flex2DGroupConfig extends Container2DGroupConfig {}
 
-export interface FlexParams {
+declare interface FlexParams {
   grow?:number
   shrink?:number
   basic?:number
@@ -42,7 +42,7 @@ const FlexSpaceFunction = {
   },
 }
 
-export interface FlexItemConfig {
+declare interface FlexItemConfig {
   identity?:number // 如果有的话，会加入后续的检索中
   v?:FlexParams
   h?:FlexParams
@@ -53,28 +53,25 @@ export interface FlexItemConfig {
 
 interface FlexTarget {
   identity:number
-  target:GetSetSize
+  target:GetSetBound
   v:FlexParams
   h:FlexParams
 }
 
-interface GetSetSize extends GetSetBound {}
-
-interface FlexItem extends GetSetSize {}
-
+interface FlexItem extends GetSetBound {}
 @GetSetNumber('x', 0)
 @GetSetNumber('y', 0)
 @GetSetNumber('width', 0)
 @GetSetNumber('height', 0)
 // 具备id的flex关系群会作为一个虚拟item参与后后续的布局计算中，当然了这样的flex关系也要有自己的StarTrackItemFlex
 class FlexItem {
-  public identity:number
+  public identity:number|undefined
   protected direction:Direction
   protected group:Flex2DGroup
   protected children:Array<FlexTarget> = []
-  protected space:FlexSpaceParams
+  protected space?:FlexSpaceParams
 
-  constructor({ identity, v, h, direction, items, space = null }:FlexItemConfig, group:Flex2DGroup) {
+  constructor({ identity, v, h, direction, items, space }:FlexItemConfig, group:Flex2DGroup) {
     this.group = group
     this.direction = direction
     this.identity = identity
@@ -88,7 +85,7 @@ class FlexItem {
     }
 
     this.addChildren(items)
-    if (this.identity) this.group.addFlexItem(this, { identity: this.identity, v, h })
+    if (this.identity) this.group.addFlexItem(this, { identity: this.identity, v: v || {}, h: h || {} })
   }
 
   protected addChildren(items:Array<number>) {
@@ -103,16 +100,16 @@ class FlexItem {
     let shrink = 0
     // 统计来自child的三值
     for (const child of this.children) {
-      basic += child[this.direction].basic
-      grow += child[this.direction].grow
-      shrink += child[this.direction].shrink
+      basic += child[this.direction].basic || 0
+      grow += child[this.direction].grow || 0
+      shrink += child[this.direction].shrink || 0
     }
     // 处理间隙
     const space:Array<number> = new Array(this.children.length).fill(0)
     if (this.space) {
-      basic += this.space.basic
-      grow += this.space.grow
-      shrink += this.space.shrink
+      basic += this.space.basic || 0
+      grow += this.space.grow || 0
+      shrink += this.space.shrink || 0
     }
     // 单位计算
     const size = this.direction === 'v' ? 'height' : 'width'
@@ -125,7 +122,7 @@ class FlexItem {
     // 分配space
     if (this.space) {
       // space = 
-      FlexSpaceFunction[this.space.type](this.space.basic, unit * (surplus > 0 ? this.space.grow : -this.space.shrink), space)
+      FlexSpaceFunction[this.space.type](this.space.basic || 0, unit * (surplus > 0 ? this.space.grow || 0 : -(this.space.shrink || 0)), space)
       // console.log(space)
     }
     // if (this.space) console.log(this.space, space)
@@ -135,7 +132,7 @@ class FlexItem {
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i]
       // console.log(child.target, child.h.basic + 0)
-      child.target[size] = child[this.direction].basic + unit * (surplus > 9 ? child[this.direction].grow : -child[this.direction].shrink)
+      child.target[size] = child[this.direction].basic || 0 + unit * (surplus > 9 ? child[this.direction].grow || 0 : -(child[this.direction].shrink || 0))
       child.target[position] = start + child.target[size] * 0.5 + space[i] // 位置 = 宽度递进 + 间距分配
       start += child.target[size]
       
@@ -176,7 +173,7 @@ export class Flex2DGroup extends Container2DGroup {
   // }
 
   public add(child:childlike):number {
-    if (child.parent === this) return
+    if (child.parent === this) return -1
 
     const index = super.add(child)
     if (this.subscriber) child.setSubscriber(this.subscriber)
@@ -184,7 +181,7 @@ export class Flex2DGroup extends Container2DGroup {
     return index
   }
 
-  public addFlexItem(flexItem:GetSetSize, config:ChildFlexConfig) {
+  public addFlexItem(flexItem:GetSetBound, config:ChildFlexConfig) {
     if (this.itemsIndex[config.identity]) console.warn(`重复的itemId:${config.identity}`, this, this.itemsIndex[config.identity], flexItem)
 
     config.v.grow = config.v.grow || 0

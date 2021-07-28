@@ -1,17 +1,5 @@
-import { BaseViewer, BaseViewerParams } from './BaseViewer'
+import { BaseViewer } from './BaseViewer'
 import { Matrix4 } from 'math.gl'
-
-interface OrthoViewerParams extends BaseViewerParams {
-  far?:number
-  near?:number
-}
-
-interface OrthoSetting {
-  left:number
-  right:number
-  bottom:number
-  top:number
-}
 
 // 它包含了BaseViewer的功能，同时它具备自己的正交相机域，因此可以做到二维和三维的切换
 export class OrthoViewer extends BaseViewer {

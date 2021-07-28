@@ -1,5 +1,5 @@
 interface Renderable {
-  render(...argus:Array<any>)
+  render(...argus:Array<any>):void
 }
 
 export function isRenderable(target:any): target is Renderable {

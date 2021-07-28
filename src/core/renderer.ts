@@ -13,8 +13,8 @@ interface RendererConfig {
 // viewport 控制
 export class Renderer {
   private scene:Scene
-  private gl:GLContext
-  private stats:Stats
+  private gl!:GLContext
+  private stats!:Stats
   private autoTick:boolean
   public needRefresh:boolean = true
 
@@ -68,7 +68,7 @@ export class Renderer {
   public destroy() {
     if (this.stats) {
       document.body.removeChild(this.stats.dom)
-      this.stats = null
+      this.stats = null as unknown as Stats
     }
   }
 }

@@ -3,32 +3,20 @@ import { Geometry } from '@luma.gl/engine'
 import { GetSetNumber, GetSetSize } from '../utils'
 
 // 用于给各种Geometry实现用的接口
-export interface GeometryStandard {
+declare interface GeometryStandard {
   stroke?:number
   length:number
   points:Array<PWPoint>
   uvs:Array<Point>
   normals:Array<Vector2>
   indices:Array<number>
-  geometry:Geometry
+  geometry?:Geometry
   config:any
-  _refreshConfig(config:any)
-  _refreshGeometry(config:any)
+  _refreshConfig(config:any):void
+  _refreshGeometry(config:any):void
   _generatePoints(...argus:Array<any>):Bound // 根据参数，生成标准化的几何，并且要返还无位置包围盒
-  _fragmentate() // 根据参数，将几何内容计算成标准的片元顶点集合
-  _strokeFragmentate?()
-}
-
-type Bound = {
-  width:number
-  height:number
-}
-
-interface LumaGeometryConfig {
-  positions:Array<number>
-  normals:Array<number>
-  indices:Array<number>
-  uvs?:Array<number>
+  _fragmentate():void // 根据参数，将几何内容计算成标准的片元顶点集合
+  _strokeFragmentate?():void
 }
 
 // 对luma Geometry对象的基本包装以方便使用
@@ -65,8 +53,8 @@ export class BaseGeometry implements GeometryStandard {
   public uvs:Array<Point> = []
   public normals:Array<Vector2> = []
   public indices:Array<number> = []
-  public geometry:LumaGeometry
-  public strokeGeometry:LumaGeometry
+  public geometry?:LumaGeometry
+  public strokeGeometry?:LumaGeometry
   public stroke:number = 0
   public strokePoints:Array<PWPoint> = []
   public strokeIndices:Array<number> = []
@@ -125,24 +113,24 @@ export class BaseGeometry implements GeometryStandard {
 
   protected buildGeometry() {
     // 计算顶点位置、法向量
-    const positions = []
+    const positions:Array<number> = []
     this.points.forEach((point) => positions.push(...[point.x, point.y, point.z, point.w]))
 
-    const normals = []
+    const normals:Array<number> = []
     // console.log(this.points, this.normals)
     this.normals.forEach((normal, index) => normals.push(...[normal.x, normal.y, this.points[index].z]))
 
-    const uvs = []
+    const uvs:Array<number> = []
     this.uvs.forEach((uv) => { uvs.push(...[uv.x, uv.y]) })
 
     if (!this.geometry) this.geometry = new LumaGeometry({ positions, normals, uvs, indices: this.indices })
     else this.geometry.rebuild({ positions, normals, uvs, indices: this.indices })
 
     if (this.stroke) {
-      const strokePositions = []
+      const strokePositions:Array<number> = []
       this.strokePoints.forEach((point) => strokePositions.push(...[point.x, point.y, point.z, point.w]))
 
-      const strokeNormals = []
+      const strokeNormals:Array<number> = []
       this.normals.forEach((normal, index) => strokeNormals.push(...[normal.x, normal.y, this.points[index].z]))
       this.normals.forEach((normal, index) => strokeNormals.push(...[normal.x, normal.y, this.points[index].z]))
 

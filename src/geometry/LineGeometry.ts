@@ -1,17 +1,8 @@
 import { BaseGeometry } from './BaseGeometry'
 import { Vector2 } from 'math.gl'
 
-export interface LineGeometryShapeConfig {
-  type?: string
-  start: Point
-  end: Point
-  thickness: number
-}
-
 // 矩形几何类型
 export class LineGeometry extends BaseGeometry {
-  public config:LineGeometryShapeConfig
-
   constructor(config:LineGeometryShapeConfig) {
     super(config)
   }

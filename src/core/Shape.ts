@@ -1,12 +1,11 @@
-import { Leaflike, constantValue, GetSetNumber, GetSetSize, MatrixManager2D, BuildMatrixManager2D, ClassTypeName, SignClassTypeName } from '../utils' // , GetSetRenderOrder
-import { getGeometry, GeometryType, GeometryConfig } from '../geometry/index'
-import { getMaterial, MaterialType, MaterialConfig } from '../material/index'
+import { Leaflike, constantValue, GetSetNumber, GetSetSize, BuildMatrixManager2D, SignClassTypeName } from '../utils' // , GetSetRenderOrder
+import { getGeometry, GeometryType } from '../geometry/index'
+import { getMaterial, MaterialType } from '../material/index'
 import { Model } from '@luma.gl/engine'
 import { setParameters } from '@luma.gl/gltools'
-import { RenderParams } from './Scene'
 import { Matrix4 } from 'math.gl'
 
-export interface ShapeConfig {
+declare interface ShapeConfig {
   name?:string
   visible?:boolean
   geometry:GeometryConfig,
@@ -22,24 +21,24 @@ export interface Shape extends GetSetSize, MatrixManager2D, ClassTypeName {}
 @GetSetNumber('width', 0)
 @GetSetNumber('height', 0)
 export class Shape extends Leaflike {
-  public itemId:number
+  public itemId:number = -1
 
-  public gl:GLContext
-  public geometry:GeometryType
-  public model:Model
-  
-  public material:MaterialType
-  public fill:MaterialType
-  public stroke:MaterialType
-  public fillModel:Model
-  public strokeModel:Model
-  public modelMatrix:Matrix4
+  public gl?:GLContext
+  public geometry?:GeometryType
+  public modelMatrix?:Matrix4
 
-  private materialConfig:MaterialConfig
-  private fillConfig:MaterialConfig
-  private strokeConfig:MaterialConfig
+  public model?:Model
+  public material?:MaterialType
+  public fill?:MaterialType
+  public stroke?:MaterialType
+  public fillModel?:Model
+  public strokeModel?:Model
+
+  private materialConfig:MaterialConfig|undefined
+  private fillConfig:MaterialConfig|undefined
+  private strokeConfig:MaterialConfig|undefined
   
-  private _visible:boolean
+  private _visible:boolean = true
   public get visible() { return this._visible }
   public set visible(visible:boolean) { this._visible = visible }
 
@@ -56,12 +55,12 @@ export class Shape extends Leaflike {
     this.height = this.geometry.height
   }
 
-  public setSubscriber(subscriber) {
+  public setSubscriber(subscriber:PaperWingSubscriber) {
     super.setSubscriber(subscriber)
     this.itemId = subscriber.get('itemId')
     subscriber.set('itemId', this.itemId + 1)
 
-    this.subscriber.once('getGl', this.getGl)
+    this.subscriber?.once('getGl', this.getGl)
   }
 
   private getGl = (gl:GLContext) => {
@@ -69,7 +68,11 @@ export class Shape extends Leaflike {
     this.init(this.materialConfig, this.fillConfig, this.strokeConfig)
   }
 
-  private init(material:MaterialConfig, fill:MaterialConfig, stroke:MaterialConfig) {
+  private init(material:MaterialConfig|undefined, fill:MaterialConfig|undefined, stroke:MaterialConfig|undefined) {
+    if (!this.subscriber) throw new Error('shape init but no subscriber')
+    if (!this.geometry) throw new Error('shape init but no geometry')
+    if (!this.gl) throw new Error('shape init but no gl')
+
     if (material) this.material = getMaterial(material)
     if (fill) this.fill = getMaterial(fill)
     if (stroke) this.stroke = getMaterial(stroke)
@@ -117,6 +120,8 @@ export class Shape extends Leaflike {
   
   // give uniforms
   public render(argus?:RenderParams) {
+    if (!this.geometry) throw new Error('shape render but no geometry')
+    if (!this.gl) throw new Error('shape render but no gl')
     const { uniforms = {}, framebuffer = null } = (argus || {})
 
     if (!this.visible) return
@@ -133,7 +138,7 @@ export class Shape extends Leaflike {
 
     if (this.geometry.geometryNeedRefresh) this.geometry._refreshGeometry()
 
-    if (this.material) {
+    if (this.material && this.model) {
       if (this.geometry.geometryNeedRefresh) {
         this.model.setGeometry(this.geometry.geometry)
       }
@@ -145,7 +150,7 @@ export class Shape extends Leaflike {
       (this.model as any).uniforms.u_modelMatrix = this._matrix
       this.model.draw(drawTarget)
     }
-    if (this.fill) {
+    if (this.fill && this.fillModel) {
       if (this.geometry.geometryNeedRefresh) this.fillModel.setGeometry(this.geometry.geometry)
       
       const fillUniforms = Object.assign({}, uniforms, this.fill.getUniforms())
@@ -155,7 +160,7 @@ export class Shape extends Leaflike {
       (this.fillModel as any).uniforms.u_modelMatrix = this._matrix
       this.fillModel.draw(drawTarget)
     }
-    if (this.stroke) {
+    if (this.stroke && this.strokeModel) {
       if (this.geometry.geometryNeedRefresh) {
         this.strokeModel.setGeometry(this.geometry.strokeGeometry)
       }
@@ -178,7 +183,7 @@ export class Shape extends Leaflike {
     }
 
     const scene = this.subscriber.get('scene');
-    (scene as any).addFrameCompute(`refreshGeometry_${this.itemId}`, { callback: this.geometry._refreshGeometry, before: true, params:[config] })
+    (scene as any).addFrameCompute(`refreshGeometry_${this.itemId}`, { callback: this.geometry!._refreshGeometry, before: true, params:[config] })
   }
 
   // onRenderOrderChange(order:number) {
@@ -212,35 +217,37 @@ export class Shape extends Leaflike {
   // }
 
   onWidthChange(width:number) {
+    if (!this.geometry) throw new Error('change width but no geometry')
     this.geometry.width = width
   }
 
   onHeightChange(height:number) {
+    if (!this.geometry) throw new Error('change height but no geometry')
     this.geometry.height = height
   }
   
   public destroy() {
-    this.subscriber = null
-    this.geometry.destroy()
-    this.geometry = null
+    this.geometry?.destroy()
+    this.geometry = undefined
+    this.subscriber = undefined
     if (this.material) {
       this.material.destroy()
-      this.material = null
-      this.model.delete()
-      this.model = null
+      this.material = undefined
+      this.model?.delete()
+      this.model = undefined
     }
     if (this.fill) {
       this.fill.destroy()
-      this.fill = null
-      this.fillModel.delete()
-      this.fillModel = null
+      this.fill = undefined
+      this.fillModel?.delete()
+      this.fillModel = undefined
     }
     if (this.stroke) {
       this.stroke.destroy()
-      this.stroke = null
-      this.strokeModel.delete()
-      this.strokeModel = null
+      this.stroke = undefined
+      this.strokeModel?.delete()
+      this.strokeModel = undefined
     }
-    if (this.modelMatrix) this.modelMatrix = null
+    if (this.modelMatrix) this.modelMatrix = undefined
   }
 }

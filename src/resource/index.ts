@@ -1,14 +1,10 @@
-import { Progress, ProgressStatus } from './Progress'
-import { Assets, AssetGroup, LoadedAssetsGroup } from './common'
-import Subscriber from '@/core/Subscriber'
+import { Progress } from './Progress'
 import { isString } from '../utils/index'
-
-export { Assets } from './common'
 
 export class Resource {
   public get assets():LoadedAssetsGroup { return this.progress.assets }
-  private subscriber:Subscriber
-  constructor(subscriber:Subscriber, assets?:Assets) {
+  private subscriber:PaperWingSubscriber
+  constructor(subscriber:PaperWingSubscriber, assets?:Assets) {
     this.progress = new Progress()
     this.progress.onProgress = this.onProgress
     this.progress.onProgressEnd = this.onProgressEnd

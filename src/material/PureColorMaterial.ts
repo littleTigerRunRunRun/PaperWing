@@ -1,8 +1,3 @@
-export interface PureColorMaterialConfig {
-  type:string
-  color:RGBAColorObject
-}
-
 export class PureColorMaterial {
   public get r():number { return this.color[0] }
   public set r(r:number) { this.color[0] = r }
@@ -16,7 +11,7 @@ export class PureColorMaterial {
   public get a():number { return this.color[3] }
   public set a(a:number) { this.color[3] = a }
 
-  private color:RGBAColorObject
+  private color:RGBAColorArray
   constructor({ color }: PureColorMaterialConfig) {
     this.color = color
   }

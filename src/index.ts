@@ -1,12 +1,12 @@
 export { Scene } from './core/Scene'
 
-export { BaseGroup, Container2DGroup, Container2DGroupConfig, Flex2DGroup, FlexParams, FlexItemConfig } from './group'
+export { BaseGroup, Container2DGroup, Flex2DGroup } from './group'
 
-export { Shape, ShapeConfig } from './core/Shape'
+export { Shape } from './core/Shape'
 
-export { LineGeometryShapeConfig, GeometryConfig, getGeometry } from './geometry/index'
+export { getGeometry } from './geometry/index'
 
-export { Viewer, BaseViewer, OrthoViewer } from './viewer/index'
+export { BaseViewer, OrthoViewer } from './viewer/index'
 
 export { Texture2D } from '@luma.gl/webgl'
 

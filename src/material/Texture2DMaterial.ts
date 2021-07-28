@@ -1,11 +1,7 @@
 import { Texture2D } from '@luma.gl/webgl'
 
-export interface Texture2DMaterialConfig {
-  type:string
-}
-
 export class Texture2DMaterial {
-  public texture:Texture2D
+  public texture?:Texture2D
 
   constructor({ }: Texture2DMaterialConfig) {
   }
